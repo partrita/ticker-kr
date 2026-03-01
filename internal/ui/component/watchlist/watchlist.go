@@ -32,6 +32,7 @@ type Model struct {
 	cellWidths     row.CellWidthsContainer
 	rows           []*row.Model
 	rowsBySymbol   map[string]*row.Model
+	rowsByID       map[int]int
 }
 
 // Messages for replacing assets
@@ -52,6 +53,7 @@ func NewModel(config Config) *Model {
 		assetsBySymbol: make(map[string]*c.Asset),
 		sorter:         s.NewSorter(config.Sort),
 		rowsBySymbol:   make(map[string]*row.Model),
+		rowsByID:       make(map[int]int),
 	}
 }
 
@@ -79,6 +81,8 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 
 		assets = m.sorter(assets)
 
+		rowsByID := make(map[int]int)
+
 		for i, asset := range assets {
 			if i < len(m.rows) {
 				m.rows[i], cmd = m.rows[i].Update(row.UpdateAssetMsg(asset))
@@ -95,6 +99,7 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 				}))
 				m.rowsBySymbol[assets[i].Symbol] = m.rows[len(m.rows)-1]
 			}
+			rowsByID[m.rows[i].ID()] = i
 		}
 
 		if len(assets) < len(m.rows) {
@@ -103,6 +108,7 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 
 		m.assets = assets
 		m.assetsBySymbol = assetsBySymbol
+		m.rowsByID = rowsByID
 
 		// TODO: only set conditionally if all assets have changed
 		m.cellWidths = getCellWidths(m.assets)
@@ -131,15 +137,14 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	case row.FrameMsg:
 
 		var cmd tea.Cmd
-		cmds := make([]tea.Cmd, 0)
 
-		// TODO: send message to a specific row rather than all rows
-		for i, r := range m.rows {
-			m.rows[i], cmd = r.Update(msg)
-			cmds = append(cmds, cmd)
+		if i, ok := m.rowsByID[int(msg)]; ok {
+			m.rows[i], cmd = m.rows[i].Update(msg)
+
+			return m, cmd
 		}
 
-		return m, tea.Batch(cmds...)
+		return m, nil
 
 	case ChangeSortMsg:
 
@@ -154,11 +159,16 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 		assets := m.sorter(m.assets)
 		m.assets = assets
 
+		rowsByID := make(map[int]int)
+
 		// Update rows with the new order
 		for i, asset := range assets {
 			m.rows[i], cmd = m.rows[i].Update(row.UpdateAssetMsg(asset))
 			cmds = append(cmds, cmd)
+			rowsByID[m.rows[i].ID()] = i
 		}
+
+		m.rowsByID = rowsByID
 
 		return m, tea.Batch(cmds...)
 

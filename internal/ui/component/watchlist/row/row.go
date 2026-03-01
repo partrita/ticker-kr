@@ -94,6 +94,11 @@ func (m *Model) Init() tea.Cmd {
 	return nil
 }
 
+// ID returns the ID of the watchlist row
+func (m *Model) ID() int {
+	return m.id
+}
+
 func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
