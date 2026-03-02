@@ -32,6 +32,7 @@ type Model struct {
 	cellWidths     row.CellWidthsContainer
 	rows           []*row.Model
 	rowsBySymbol   map[string]*row.Model
+	rowsByID       map[int]int
 }
 
 // Messages for replacing assets
@@ -52,6 +53,7 @@ func NewModel(config Config) *Model {
 		assetsBySymbol: make(map[string]*c.Asset),
 		sorter:         s.NewSorter(config.Sort),
 		rowsBySymbol:   make(map[string]*row.Model),
+		rowsByID:       make(map[int]int),
 	}
 }
 
@@ -79,11 +81,14 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 
 		assets = m.sorter(assets)
 
+		// Clear maps to prevent stale entries
+		m.rowsBySymbol = make(map[string]*row.Model)
+		m.rowsByID = make(map[int]int)
+
 		for i, asset := range assets {
 			if i < len(m.rows) {
 				m.rows[i], cmd = m.rows[i].Update(row.UpdateAssetMsg(asset))
 				cmds = append(cmds, cmd)
-				m.rowsBySymbol[assets[i].Symbol] = m.rows[i]
 			} else {
 				m.rows = append(m.rows, row.New(row.Config{
 					Separate:              m.config.Separate,
@@ -93,24 +98,39 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 					Styles:                m.config.Styles,
 					Asset:                 asset,
 				}))
-				m.rowsBySymbol[assets[i].Symbol] = m.rows[len(m.rows)-1]
 			}
+			m.rowsBySymbol[asset.Symbol] = m.rows[i]
+			m.rowsByID[m.rows[i].ID()] = i
 		}
 
 		if len(assets) < len(m.rows) {
 			m.rows = m.rows[:len(assets)]
 		}
 
+		hasChanged := len(assets) != len(m.assets)
+		if !hasChanged {
+			for i := range assets {
+				if assets[i].Symbol != m.assets[i].Symbol ||
+					assets[i].QuotePrice.Price != m.assets[i].QuotePrice.Price ||
+					assets[i].QuoteExtended.Volume != m.assets[i].QuoteExtended.Volume ||
+					assets[i].QuoteExtended.MarketCap != m.assets[i].QuoteExtended.MarketCap {
+					hasChanged = true
+					break
+				}
+			}
+		}
+
 		m.assets = assets
 		m.assetsBySymbol = assetsBySymbol
 
-		// TODO: only set conditionally if all assets have changed
-		m.cellWidths = getCellWidths(m.assets)
-		for i, r := range m.rows {
-			m.rows[i], _ = r.Update(row.SetCellWidthsMsg{
-				Width:      m.width,
-				CellWidths: m.cellWidths,
-			})
+		if hasChanged {
+			m.cellWidths = getCellWidths(m.assets)
+			for i, r := range m.rows {
+				m.rows[i], _ = r.Update(row.SetCellWidthsMsg{
+					Width:      m.width,
+					CellWidths: m.cellWidths,
+				})
+			}
 		}
 
 		return m, tea.Batch(cmds...)
@@ -131,15 +151,12 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	case row.FrameMsg:
 
 		var cmd tea.Cmd
-		cmds := make([]tea.Cmd, 0)
 
-		// TODO: send message to a specific row rather than all rows
-		for i, r := range m.rows {
-			m.rows[i], cmd = r.Update(msg)
-			cmds = append(cmds, cmd)
+		if idx, ok := m.rowsByID[int(msg)]; ok {
+			m.rows[idx], cmd = m.rows[idx].Update(msg)
 		}
 
-		return m, tea.Batch(cmds...)
+		return m, cmd
 
 	case ChangeSortMsg:
 
