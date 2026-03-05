@@ -68,17 +68,14 @@ func sortByValue(assetsIn []*c.Asset) []*c.Asset {
 	assets := make([]*c.Asset, assetCount)
 	copy(assets, assetsIn)
 
-	activeAssets, inactiveAssets := splitActiveAssets(assets)
-
-	sort.SliceStable(inactiveAssets, func(i, j int) bool {
-		return inactiveAssets[j].Position.Value < inactiveAssets[i].Position.Value
+	sort.SliceStable(assets, func(i, j int) bool {
+		if assets[i].Exchange.IsActive != assets[j].Exchange.IsActive {
+			return assets[i].Exchange.IsActive
+		}
+		return assets[i].Position.Value > assets[j].Position.Value
 	})
 
-	sort.SliceStable(activeAssets, func(i, j int) bool {
-		return activeAssets[j].Position.Value < activeAssets[i].Position.Value
-	})
-
-	return append(activeAssets, inactiveAssets...)
+	return assets
 }
 
 func sortByChange(assetsIn []*c.Asset) []*c.Asset {
@@ -92,32 +89,13 @@ func sortByChange(assetsIn []*c.Asset) []*c.Asset {
 	assets := make([]*c.Asset, assetCount)
 	copy(assets, assetsIn)
 
-	activeAssets, inactiveAssets := splitActiveAssets(assets)
-
-	sort.SliceStable(activeAssets, func(i, j int) bool {
-		return activeAssets[j].QuotePrice.ChangePercent < activeAssets[i].QuotePrice.ChangePercent
-	})
-
-	sort.SliceStable(inactiveAssets, func(i, j int) bool {
-		return inactiveAssets[j].QuotePrice.ChangePercent < inactiveAssets[i].QuotePrice.ChangePercent
-	})
-
-	return append(activeAssets, inactiveAssets...)
-
-}
-
-func splitActiveAssets(assets []*c.Asset) ([]*c.Asset, []*c.Asset) {
-
-	activeAssets := make([]*c.Asset, 0)
-	inactiveAssets := make([]*c.Asset, 0)
-
-	for _, asset := range assets {
-		if asset.Exchange.IsActive {
-			activeAssets = append(activeAssets, asset)
-		} else {
-			inactiveAssets = append(inactiveAssets, asset)
+	sort.SliceStable(assets, func(i, j int) bool {
+		if assets[i].Exchange.IsActive != assets[j].Exchange.IsActive {
+			return assets[i].Exchange.IsActive
 		}
-	}
+		return assets[i].QuotePrice.ChangePercent > assets[j].QuotePrice.ChangePercent
+	})
 
-	return activeAssets, inactiveAssets
+	return assets
+
 }
