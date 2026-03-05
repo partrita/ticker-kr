@@ -39,16 +39,13 @@ func sortByUser(assets []*c.Asset) []*c.Asset {
 
 }
 
-func sortByAlpha(assetsIn []*c.Asset) []*c.Asset {
+func sortByAlpha(assets []*c.Asset) []*c.Asset {
 
-	assetCount := len(assetsIn)
+	assetCount := len(assets)
 
 	if assetCount <= 0 {
-		return assetsIn
+		return assets
 	}
-
-	assets := make([]*c.Asset, assetCount)
-	copy(assets, assetsIn)
 
 	sort.SliceStable(assets, func(i, j int) bool {
 		return assets[j].Symbol > assets[i].Symbol
@@ -57,16 +54,13 @@ func sortByAlpha(assetsIn []*c.Asset) []*c.Asset {
 	return assets
 }
 
-func sortByValue(assetsIn []*c.Asset) []*c.Asset {
+func sortByValue(assets []*c.Asset) []*c.Asset {
 
-	assetCount := len(assetsIn)
+	assetCount := len(assets)
 
 	if assetCount <= 0 {
-		return assetsIn
+		return assets
 	}
-
-	assets := make([]*c.Asset, assetCount)
-	copy(assets, assetsIn)
 
 	sort.SliceStable(assets, func(i, j int) bool {
 		if assets[i].Exchange.IsActive != assets[j].Exchange.IsActive {
@@ -78,16 +72,13 @@ func sortByValue(assetsIn []*c.Asset) []*c.Asset {
 	return assets
 }
 
-func sortByChange(assetsIn []*c.Asset) []*c.Asset {
+func sortByChange(assets []*c.Asset) []*c.Asset {
 
-	assetCount := len(assetsIn)
+	assetCount := len(assets)
 
 	if assetCount <= 0 {
-		return assetsIn
+		return assets
 	}
-
-	assets := make([]*c.Asset, assetCount)
-	copy(assets, assetsIn)
 
 	sort.SliceStable(assets, func(i, j int) bool {
 		if assets[i].Exchange.IsActive != assets[j].Exchange.IsActive {
