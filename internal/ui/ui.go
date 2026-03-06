@@ -50,6 +50,7 @@ type Model struct {
 	groupSelectedName  string
 	currentSort        string
 	monitors           *mon.Monitor
+	dataDirty          bool
 	mu                 sync.RWMutex
 }
 
@@ -234,11 +235,15 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		// Update watchlist and summary components
-		m.watchlist, cmd = m.watchlist.Update(watchlist.SetAssetsMsg(m.assets))
-		m.summary, _ = m.summary.Update(summary.SetSummaryMsg(m.positionSummary))
+		// Update watchlist and summary components if data has changed
+		if m.dataDirty {
+			m.watchlist, cmd = m.watchlist.Update(watchlist.SetAssetsMsg(m.assets))
+			m.summary, _ = m.summary.Update(summary.SetSummaryMsg(m.positionSummary))
 
-		cmds = append(cmds, cmd)
+			cmds = append(cmds, cmd)
+
+			m.dataDirty = false
+		}
 
 		// Set the current tick time
 		m.lastUpdateTime = getTime()
@@ -274,6 +279,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.groupSelectedName = m.ctx.Groups[m.groupSelectedIndex].Name
+		m.dataDirty = true
 
 		return m, nil
 
@@ -316,6 +322,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.assets = assets
 		m.positionSummary = positionSummary
+		m.dataDirty = true
 
 		return m, nil
 
