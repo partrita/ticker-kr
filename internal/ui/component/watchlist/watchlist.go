@@ -177,12 +177,18 @@ func (m *Model) View() string {
 		return fmt.Sprintf("Terminal window too narrow to render content\nResize to fix (%d/80)", m.width)
 	}
 
-	rows := make([]string, 0)
-	for _, row := range m.rows {
-		rows = append(rows, row.View())
+	var b strings.Builder
+	// Estimated capacity: number of rows * width + newlines
+	b.Grow(len(m.rows) * (m.width + 1))
+
+	for i, row := range m.rows {
+		if i > 0 {
+			b.WriteByte('\n')
+		}
+		b.WriteString(row.View())
 	}
 
-	return strings.Join(rows, "\n")
+	return b.String()
 
 }
 func getCellWidths(assets []*c.Asset) row.CellWidthsContainer {

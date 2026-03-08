@@ -67,6 +67,8 @@ type Model struct {
 	priceChangeSegment   string
 	priceNoChangeSegment string
 	priceChangeDirection int
+	viewCache            string
+	viewDirty            bool
 }
 
 // New returns a model with default values
@@ -86,6 +88,7 @@ func New(config Config) *Model {
 		config:               config,
 		priceNoChangeSegment: u.ConvertFloatToString(config.Asset.QuotePrice.Price, config.Asset.Meta.IsVariablePrecision),
 		priceChangeSegment:   "",
+		viewDirty:            true,
 	}
 }
 
@@ -105,6 +108,7 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	case SetCellWidthsMsg:
 		m.cellWidths = msg.CellWidths
 		m.width = msg.Width
+		m.viewDirty = true
 
 		return m, nil
 
@@ -112,6 +116,7 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 
 		// If symbol has not changed and price has changed then start the price animation
 		if m.config.Asset.Symbol == msg.Symbol && m.config.Asset.QuotePrice.Price != msg.QuotePrice.Price {
+			m.viewDirty = true
 			// Reset color and frame on number change
 			m.priceStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("15")).Background(lipgloss.Color(""))
 			m.frame = 0
@@ -151,6 +156,7 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 		}
 
 		// If symbol has changed or price has not changed then just update the asset
+		m.viewDirty = true
 		m.config.Asset = msg
 		m.priceNoChangeSegment = u.ConvertFloatToString(msg.QuotePrice.Price, msg.Meta.IsVariablePrecision)
 		m.priceChangeSegment = ""
@@ -162,6 +168,8 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 		if m.id != int(msg) {
 			return m, nil
 		}
+
+		m.viewDirty = true
 
 		if m.frame < 4 && m.priceChangeDirection > 0 {
 			switch m.frame {
@@ -206,6 +214,10 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 // View rendering hook
 func (m *Model) View() string {
 
+	if !m.viewDirty {
+		return m.viewCache
+	}
+
 	rows := []grid.Row{}
 
 	rows = append(
@@ -237,7 +249,10 @@ func (m *Model) View() string {
 			})
 	}
 
-	return grid.Render(grid.Grid{Rows: rows, GutterHorizontal: WidthGutter})
+	m.viewCache = grid.Render(grid.Grid{Rows: rows, GutterHorizontal: WidthGutter})
+	m.viewDirty = false
+
+	return m.viewCache
 }
 
 func (m *Model) buildCells() []grid.Cell {
