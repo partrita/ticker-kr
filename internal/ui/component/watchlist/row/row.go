@@ -67,6 +67,8 @@ type Model struct {
 	priceChangeSegment   string
 	priceNoChangeSegment string
 	priceChangeDirection int
+	viewCache            string
+	cacheValid           bool
 }
 
 // New returns a model with default values
@@ -100,6 +102,16 @@ func (m *Model) ID() int {
 }
 
 func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
+
+	// Invalidate cache for any message that might change the state
+	// FrameMsg only invalidates if it's for this row
+	if fmsg, ok := msg.(FrameMsg); ok {
+		if m.id == int(fmsg) {
+			m.cacheValid = false
+		}
+	} else {
+		m.cacheValid = false
+	}
 
 	switch msg := msg.(type) {
 	case SetCellWidthsMsg:
@@ -206,6 +218,10 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 // View rendering hook
 func (m *Model) View() string {
 
+	if m.cacheValid {
+		return m.viewCache
+	}
+
 	rows := []grid.Row{}
 
 	rows = append(
@@ -237,7 +253,10 @@ func (m *Model) View() string {
 			})
 	}
 
-	return grid.Render(grid.Grid{Rows: rows, GutterHorizontal: WidthGutter})
+	m.viewCache = grid.Render(grid.Grid{Rows: rows, GutterHorizontal: WidthGutter})
+	m.cacheValid = true
+
+	return m.viewCache
 }
 
 func (m *Model) buildCells() []grid.Cell {
