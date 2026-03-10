@@ -108,21 +108,30 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 		m.assets = assets
 		m.assetsBySymbol = assetsBySymbol
 
-		// TODO: only set conditionally if all assets have changed
-		m.cellWidths = getCellWidths(m.assets)
-		for i, r := range m.rows {
-			m.rows[i], _ = r.Update(row.SetCellWidthsMsg{
-				Width:      m.width,
-				CellWidths: m.cellWidths,
-			})
+		// Optimized: only update cell widths if they have changed
+		newCellWidths := getCellWidths(m.assets)
+		if newCellWidths != m.cellWidths {
+			m.cellWidths = newCellWidths
+			for i, r := range m.rows {
+				m.rows[i], _ = r.Update(row.SetCellWidthsMsg{
+					Width:      m.width,
+					CellWidths: m.cellWidths,
+				})
+			}
 		}
 
 		return m, tea.Batch(cmds...)
 
 	case tea.WindowSizeMsg:
 
+		newCellWidths := getCellWidths(m.assets)
+		if m.width == msg.Width && m.cellWidths == newCellWidths {
+			return m, nil
+		}
+
 		m.width = msg.Width
-		m.cellWidths = getCellWidths(m.assets)
+		m.cellWidths = newCellWidths
+
 		for i, r := range m.rows {
 			m.rows[i], _ = r.Update(row.SetCellWidthsMsg{
 				Width:      m.width,
@@ -177,12 +186,15 @@ func (m *Model) View() string {
 		return fmt.Sprintf("Terminal window too narrow to render content\nResize to fix (%d/80)", m.width)
 	}
 
-	rows := make([]string, 0)
-	for _, row := range m.rows {
-		rows = append(rows, row.View())
+	var b strings.Builder
+	for i, row := range m.rows {
+		b.WriteString(row.View())
+		if i < len(m.rows)-1 {
+			b.WriteRune('\n')
+		}
 	}
 
-	return strings.Join(rows, "\n")
+	return b.String()
 
 }
 func getCellWidths(assets []*c.Asset) row.CellWidthsContainer {

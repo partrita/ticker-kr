@@ -67,6 +67,7 @@ type Model struct {
 	priceChangeSegment   string
 	priceNoChangeSegment string
 	priceChangeDirection int
+	viewCache            string
 }
 
 // New returns a model with default values
@@ -103,12 +104,17 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case SetCellWidthsMsg:
+		if m.width == msg.Width && m.cellWidths == msg.CellWidths {
+			return m, nil
+		}
 		m.cellWidths = msg.CellWidths
 		m.width = msg.Width
+		m.viewCache = ""
 
 		return m, nil
 
 	case UpdateAssetMsg:
+		m.viewCache = ""
 
 		// If symbol has not changed and price has changed then start the price animation
 		if m.config.Asset.Symbol == msg.Symbol && m.config.Asset.QuotePrice.Price != msg.QuotePrice.Price {
@@ -163,6 +169,8 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 			return m, nil
 		}
 
+		m.viewCache = ""
+
 		if m.frame < 4 && m.priceChangeDirection > 0 {
 			switch m.frame {
 			case 0:
@@ -205,6 +213,9 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 
 // View rendering hook
 func (m *Model) View() string {
+	if m.viewCache != "" {
+		return m.viewCache
+	}
 
 	rows := []grid.Row{}
 
@@ -237,7 +248,8 @@ func (m *Model) View() string {
 			})
 	}
 
-	return grid.Render(grid.Grid{Rows: rows, GutterHorizontal: WidthGutter})
+	m.viewCache = grid.Render(grid.Grid{Rows: rows, GutterHorizontal: WidthGutter})
+	return m.viewCache
 }
 
 func (m *Model) buildCells() []grid.Cell {
