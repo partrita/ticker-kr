@@ -50,9 +50,9 @@ type Config struct {
 }
 
 // Option defines an option for configuring the monitor
-type Option func(*MonitorPriceYahoo)
+type Option func(*MonitorPriceYahoo) error
 
-func NewMonitorPriceYahoo(config Config, opts ...Option) *MonitorPriceYahoo {
+func NewMonitorPriceYahoo(config Config, opts ...Option) (*MonitorPriceYahoo, error) {
 	ctx, cancel := context.WithCancel(config.Ctx)
 
 	monitor := &MonitorPriceYahoo{
@@ -76,17 +76,18 @@ func NewMonitorPriceYahoo(config Config, opts ...Option) *MonitorPriceYahoo {
 	monitor.poller = poller.NewPoller(ctx, pollerConfig)
 
 	for _, opt := range opts {
-		opt(monitor)
+		if err := opt(monitor); err != nil {
+			return nil, err
+		}
 	}
 
-	return monitor
+	return monitor, nil
 }
 
 // WithRefreshInterval sets the refresh interval for the monitor
 func WithRefreshInterval(interval time.Duration) Option {
-	return func(m *MonitorPriceYahoo) {
-		// TODO: handle error
-		m.poller.SetRefreshInterval(interval) //nolint:errcheck
+	return func(m *MonitorPriceYahoo) error {
+		return m.poller.SetRefreshInterval(interval)
 	}
 }
 

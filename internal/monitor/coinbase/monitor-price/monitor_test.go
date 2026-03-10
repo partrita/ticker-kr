@@ -31,7 +31,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 	Describe("NewMonitorPriceCoinbase", func() {
 		It("should return a new MonitorCoinbase", func() {
-			monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+			monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 				UnaryURL:                 server.URL(),
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
@@ -42,7 +42,7 @@ var _ = Describe("Monitor Coinbase", func() {
 		When("the streaming URL is set", func() {
 			It("should set the streaming URL", func() {
 				url := "wss://websocket-feed.exchange.coinbase.com"
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -55,7 +55,7 @@ var _ = Describe("Monitor Coinbase", func() {
 		When("the refresh interval is set", func() {
 			It("should set the refresh interval", func() {
 				interval := 10 * time.Second
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -135,7 +135,7 @@ var _ = Describe("Monitor Coinbase", func() {
 				),
 			)
 
-			monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+			monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 				UnaryURL:                 server.URL(),
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
@@ -164,7 +164,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					),
 				)
 
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -229,7 +229,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					),
 				)
 
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -353,7 +353,7 @@ var _ = Describe("Monitor Coinbase", func() {
 						),
 					)
 
-					monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
 						Ctx:                      context.Background(),
 						ChanRequestCurrencyRates: make(chan []string, 1),
@@ -381,7 +381,7 @@ var _ = Describe("Monitor Coinbase", func() {
 						),
 					)
 
-					monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
 						Ctx:                      context.Background(),
 						ChanRequestCurrencyRates: make(chan []string, 1),
@@ -398,7 +398,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 	Describe("Start", func() {
 		It("should start the monitor", func() {
-			monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+			monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 				UnaryURL:                 server.URL(),
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
@@ -410,7 +410,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 		When("the monitor is already started", func() {
 			It("should return an error", func() {
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -434,7 +434,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					),
 				)
 
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -473,7 +473,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					),
 				)
 
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -514,7 +514,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					),
 				)
 
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -577,7 +577,7 @@ var _ = Describe("Monitor Coinbase", func() {
 				// Create a channel to receive updates
 				updateChan := make(chan c.MessageUpdate[c.AssetQuote], 10)
 
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					ChanUpdateAssetQuote:     updateChan,
 					Ctx:                      context.Background(),
@@ -639,7 +639,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					// Create a channel to receive updates
 					updateChan := make(chan c.MessageUpdate[c.AssetQuote], 10)
 
-					monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
@@ -700,7 +700,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					// Create a channel to receive updates
 					updateChan := make(chan c.MessageUpdate[c.AssetQuote], 10)
 
-					monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
@@ -805,7 +805,7 @@ var _ = Describe("Monitor Coinbase", func() {
 				updateChan := make(chan c.MessageUpdate[c.AssetQuote], 10)
 
 				// Create a monitor with a short refresh interval for testing
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					ChanUpdateAssetQuote:     updateChan,
 					Ctx:                      context.Background(),
@@ -861,7 +861,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					updateChan := make(chan c.MessageUpdate[c.AssetQuote], 10)
 
 					// Create a monitor with a short refresh interval for testing
-					monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
@@ -938,7 +938,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					receivedSymbols := make(map[string]bool)
 
 					// Create a monitor with a short refresh interval
-					monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
@@ -1077,7 +1077,7 @@ var _ = Describe("Monitor Coinbase", func() {
 				updateChan := make(chan c.MessageUpdate[c.AssetQuote], 10)
 
 				// Create and start the monitor
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					ChanUpdateAssetQuote:     updateChan,
 					Ctx:                      context.Background(),
@@ -1137,7 +1137,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					errorChan := make(chan error, 1)
 
 					// Create and start the monitor
-					monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
 						ChanError:                errorChan,
 						Ctx:                      context.Background(),
@@ -1179,7 +1179,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 	Describe("Stop", func() {
 		It("should stop the monitor", func() {
-			monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+			monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 				UnaryURL:                 server.URL(),
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
@@ -1194,7 +1194,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 		When("the monitor is not started", func() {
 			It("should return an error", func() {
-				monitor := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
+				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),

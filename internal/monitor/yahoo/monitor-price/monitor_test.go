@@ -35,7 +35,7 @@ var _ = Describe("Monitor Yahoo", func() {
 
 	Describe("NewMonitorPriceYahoo", func() {
 		It("should return a new MonitorYahoo", func() {
-			monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+			monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 				UnaryAPI:                 unaryAPI,
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
@@ -62,7 +62,7 @@ var _ = Describe("Monitor Yahoo", func() {
 				),
 			)
 
-			monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+			monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 				UnaryAPI:                 unaryAPI,
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
@@ -99,7 +99,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					),
 				)
 
-				monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+				monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 					UnaryAPI:                 unaryAPI,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -138,7 +138,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					),
 				)
 
-				monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+				monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 					UnaryAPI:                 unaryAPI,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -178,7 +178,7 @@ var _ = Describe("Monitor Yahoo", func() {
 				),
 			)
 
-			monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+			monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 				UnaryAPI:                 unaryAPI,
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
@@ -208,7 +208,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					),
 				)
 
-				monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+				monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 					UnaryAPI:                 unaryAPI,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -244,7 +244,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					),
 				)
 
-				monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+				monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 					UnaryAPI:                 unaryAPI,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -277,7 +277,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					),
 				)
 
-				monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+				monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 					UnaryAPI:                 unaryAPI,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -333,7 +333,7 @@ var _ = Describe("Monitor Yahoo", func() {
 				updateChan := make(chan c.MessageUpdate[c.AssetQuote], 10)
 
 				// Create a monitor with a short refresh interval for testing
-				monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+				monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 					UnaryAPI:                 unaryAPI,
 					ChanUpdateAssetQuote:     updateChan,
 					Ctx:                      context.Background(),
@@ -374,7 +374,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					updateChan := make(chan c.MessageUpdate[c.AssetQuote], 10)
 
 					// Create a monitor with a short refresh interval
-					monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+					monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 						UnaryAPI:                 unaryAPI,
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
@@ -433,7 +433,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					// Create a channel to receive updates
 					updateChan := make(chan c.MessageUpdate[c.AssetQuote], 10)
 
-					monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+					monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 						UnaryAPI:                 unaryAPI,
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
@@ -474,7 +474,7 @@ var _ = Describe("Monitor Yahoo", func() {
 				updateChan := make(chan c.MessageUpdate[c.AssetQuote], 10)
 
 				// Create and start the monitor
-				monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+				monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 					UnaryAPI:                 unaryAPI,
 					ChanUpdateAssetQuote:     updateChan,
 					Ctx:                      context.Background(),
@@ -525,7 +525,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					errorChan := make(chan error, 1)
 
 					// Create and start the monitor
-					monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+					monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 						UnaryAPI:                 unaryAPI,
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
@@ -568,7 +568,7 @@ var _ = Describe("Monitor Yahoo", func() {
 				),
 			)
 
-			monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+			monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 				UnaryAPI:                 unaryAPI,
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
@@ -592,7 +592,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					),
 				)
 
-				monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+				monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 					UnaryAPI:                 unaryAPI,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -627,7 +627,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					},
 				)
 
-				monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+				monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 					UnaryAPI:                 unaryAPI,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -659,7 +659,7 @@ var _ = Describe("Monitor Yahoo", func() {
 					},
 				)
 
-				monitor := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
+				monitor, _ := monitorPriceYahoo.NewMonitorPriceYahoo(monitorPriceYahoo.Config{
 					UnaryAPI:                 unaryAPI,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),

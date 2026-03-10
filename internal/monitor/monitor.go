@@ -71,7 +71,7 @@ func NewMonitor(configMonitor ConfigMonitor) (*Monitor, error) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	coinbase := monitorPriceCoinbase.NewMonitorPriceCoinbase(
+	coinbase, err := monitorPriceCoinbase.NewMonitorPriceCoinbase(
 		monitorPriceCoinbase.Config{
 			Ctx:                      ctx,
 			UnaryURL:                 configMonitor.ConfigMonitorPriceCoinbase.BaseURL,
@@ -82,6 +82,10 @@ func NewMonitor(configMonitor ConfigMonitor) (*Monitor, error) {
 		monitorPriceCoinbase.WithStreamingURL(configMonitor.ConfigMonitorPriceCoinbase.StreamingURL),
 		monitorPriceCoinbase.WithRefreshInterval(time.Duration(configMonitor.RefreshInterval)*time.Second),
 	)
+	if err != nil {
+		cancel()
+		return nil, err
+	}
 
 	// Create and configure the API client for the Yahoo API shared between monitors
 	unaryAPI := unaryClientYahoo.NewUnaryAPI(unaryClientYahoo.Config{
@@ -91,7 +95,7 @@ func NewMonitor(configMonitor ConfigMonitor) (*Monitor, error) {
 		SessionConsentURL: configMonitor.ConfigMonitorsYahoo.SessionConsentURL,
 	})
 
-	yahoo := monitorPriceYahoo.NewMonitorPriceYahoo(
+	yahoo, err := monitorPriceYahoo.NewMonitorPriceYahoo(
 		monitorPriceYahoo.Config{
 			Ctx:                      ctx,
 			UnaryAPI:                 unaryAPI,
@@ -101,6 +105,10 @@ func NewMonitor(configMonitor ConfigMonitor) (*Monitor, error) {
 		},
 		monitorPriceYahoo.WithRefreshInterval(time.Duration(configMonitor.RefreshInterval)*time.Second),
 	)
+	if err != nil {
+		cancel()
+		return nil, err
+	}
 
 	yahooCurrencyRate := monitorCurrencyRate.NewMonitorCurrencyRateYahoo(
 		monitorCurrencyRate.Config{
