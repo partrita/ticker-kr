@@ -60,9 +60,9 @@ type Config struct {
 }
 
 // Option defines an option for configuring the monitor
-type Option func(*MonitorPriceCoinbase)
+type Option func(*MonitorPriceCoinbase) error
 
-func NewMonitorPriceCoinbase(config Config, opts ...Option) *MonitorPriceCoinbase {
+func NewMonitorPriceCoinbase(config Config, opts ...Option) (*MonitorPriceCoinbase, error) {
 	ctx, cancel := context.WithCancel(config.Ctx)
 
 	unaryAPI := unary.NewUnaryAPI(config.UnaryURL)
@@ -98,25 +98,25 @@ func NewMonitorPriceCoinbase(config Config, opts ...Option) *MonitorPriceCoinbas
 	monitor.streamer = streamer.NewStreamer(ctx, streamerConfig)
 
 	for _, opt := range opts {
-		opt(monitor)
+		if err := opt(monitor); err != nil {
+			return nil, err
+		}
 	}
 
-	return monitor
+	return monitor, nil
 }
 
 // WithStreamingURL sets the streaming URL for the monitor
 func WithStreamingURL(url string) Option {
-	return func(m *MonitorPriceCoinbase) {
-		// TODO: handle error
-		m.streamer.SetURL(url) //nolint:errcheck
+	return func(m *MonitorPriceCoinbase) error {
+		return m.streamer.SetURL(url)
 	}
 }
 
 // WithRefreshInterval sets the refresh interval for the monitor
 func WithRefreshInterval(interval time.Duration) Option {
-	return func(m *MonitorPriceCoinbase) {
-		// TODO: handle error
-		m.poller.SetRefreshInterval(interval) //nolint:errcheck
+	return func(m *MonitorPriceCoinbase) error {
+		return m.poller.SetRefreshInterval(interval)
 	}
 }
 
@@ -193,7 +193,6 @@ func (m *MonitorPriceCoinbase) SetSymbols(productIds []string, versionVector int
 		return err
 	}
 
-	// TODO: handle error
 	m.poller.SetSymbols(m.productIdsPolling, versionVector)
 
 	return nil
