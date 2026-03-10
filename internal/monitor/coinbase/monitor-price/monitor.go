@@ -394,11 +394,19 @@ func (m *MonitorPriceCoinbase) SetCurrencyRates(currencyRates c.CurrencyRates) e
 	m.currencyRatesCache = currencyRates
 	m.muCurrencyRates.Unlock()
 
-	// Map over each asset quote and update the currency rate
-	// TODO: make this more efficient by selectively updating based on changes in rates
-	_, err := m.getAssetQuotesAndReplaceCache()
-	if err != nil {
-		return err
+	// Update the currency rate for each asset quote in the cache in-place
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	for _, quote := range m.assetQuotesCache {
+		// Set the currency rate if available and changed
+		if rate, exists := currencyRates[fromCurrencyCode]; exists {
+			if quote.Currency.Rate != rate.Rate || quote.Currency.ToCurrencyCode != rate.ToCurrency {
+				quote.Currency.Rate = rate.Rate
+				quote.Currency.FromCurrencyCode = fromCurrencyCode
+				quote.Currency.ToCurrencyCode = rate.ToCurrency
+			}
+		}
 	}
 
 	return nil
