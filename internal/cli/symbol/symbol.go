@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"time"
 
 	c "github.com/achannarasappa/ticker/v5/internal/common"
 )
@@ -60,8 +62,26 @@ func parseTickerSymbolToSourceSymbol(body io.ReadCloser) (TickerSymbolToSourceSy
 }
 
 // GetTickerSymbols retrieves a list of ticker specific symbols and their data source
-func GetTickerSymbols(url string) (TickerSymbolToSourceSymbol, error) {
-	resp, err := http.Get(url) //nolint:gosec
+func GetTickerSymbols(symbolUrl string) (TickerSymbolToSourceSymbol, error) {
+	parsedURL, err := url.Parse(symbolUrl)
+	if err != nil {
+		return TickerSymbolToSourceSymbol{}, fmt.Errorf("invalid URL: %w", err)
+	}
+
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return TickerSymbolToSourceSymbol{}, errors.New("invalid URL scheme: must be http or https")
+	}
+
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	req, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
+	if err != nil {
+		return TickerSymbolToSourceSymbol{}, err
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return TickerSymbolToSourceSymbol{}, err
 	}
