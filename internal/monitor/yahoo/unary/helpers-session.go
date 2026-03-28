@@ -214,6 +214,7 @@ func (u *UnaryAPI) getCrumb() (string, error) {
 // createClientWithRedirectLimit returns a new http.Client with the specified redirect limit
 func (a *UnaryAPI) createClientWithRedirectLimit(limit int) *http.Client {
 	return &http.Client{
+		Timeout: 10 * time.Second,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if len(via) >= limit {
 				return http.ErrUseLastResponse

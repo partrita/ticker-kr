@@ -66,7 +66,9 @@ type UnaryAPI struct {
 
 func NewUnaryAPI(baseURL string) *UnaryAPI {
 	return &UnaryAPI{
-		client:  &http.Client{},
+		client: &http.Client{
+			Timeout: 10 * time.Second,
+		},
 		baseURL: baseURL,
 	}
 }

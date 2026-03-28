@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	c "github.com/achannarasappa/ticker/v5/internal/common"
 )
@@ -38,6 +39,7 @@ type SymbolToCurrency struct {
 func NewUnaryAPI(config Config) *UnaryAPI {
 	// Create client with limited redirects
 	client := &http.Client{
+		Timeout: 10 * time.Second,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if len(via) >= 1 {
 				return http.ErrUseLastResponse
