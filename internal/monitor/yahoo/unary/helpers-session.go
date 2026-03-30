@@ -81,7 +81,10 @@ func (u *UnaryAPI) getCookieEU() ([]*http.Cookie, error) {
 	client1 := u.createClientWithRedirectLimit(3)
 
 	// First request to get redirected to consent page
-	req1, _ := http.NewRequest(http.MethodGet, u.sessionRootURL, nil)
+	req1, err := http.NewRequest(http.MethodGet, u.sessionRootURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request for root URL: %w", err)
+	}
 
 	req1.Header.Set("Authority", "finance.yahoo.com")
 	req1.Header.Set("Accept", defaultAcceptValue)
