@@ -182,7 +182,10 @@ func (u *UnaryAPI) getQuotes(symbols []string, fields []string) (Response, error
 	reqURL.RawQuery = q.Encode()
 
 	// Create request
-	req, _ := http.NewRequest(http.MethodGet, reqURL.String(), nil)
+	req, err := http.NewRequest(http.MethodGet, reqURL.String(), nil)
+	if err != nil {
+		return Response{}, fmt.Errorf("failed to create request: %w", err)
+	}
 
 	// Set common headers
 	req.Header.Set("Authority", "query1.finance.yahoo.com")
