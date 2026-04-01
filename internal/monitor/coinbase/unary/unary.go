@@ -177,14 +177,26 @@ func (u *UnaryAPI) GetAssetQuotes(symbols []string) ([]c.AssetQuote, map[string]
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to parse url: %w", err)
 	}
+
+	if reqURL.Scheme != "http" && reqURL.Scheme != "https" {
+		return nil, nil, fmt.Errorf("invalid URL scheme: must be http or https")
+	}
+
 	q := reqURL.Query()
 	for _, symbol := range symbols {
 		q.Add("product_ids", symbol)
 	}
 	reqURL.RawQuery = q.Encode()
 
+	req, err := http.NewRequest(http.MethodGet, reqURL.String(), nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36")
+
 	// Make request
-	resp, err := u.client.Get(reqURL.String())
+	resp, err := u.client.Do(req)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to make request: %w", err)
 	}
