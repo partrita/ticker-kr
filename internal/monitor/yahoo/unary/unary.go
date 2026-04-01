@@ -164,6 +164,10 @@ func (u *UnaryAPI) getQuotes(symbols []string, fields []string) (Response, error
 		return Response{}, fmt.Errorf("failed to create request: %w", err)
 	}
 
+	if reqURL.Scheme != "http" && reqURL.Scheme != "https" {
+		return Response{}, fmt.Errorf("invalid URL scheme: must be http or https")
+	}
+
 	q := reqURL.Query()
 	q.Set("fields", strings.Join(fields, ","))
 	q.Set("symbols", strings.Join(symbols, ","))
