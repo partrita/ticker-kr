@@ -44,7 +44,16 @@ func (u *UnaryAPI) refreshSession() error {
 
 // getCookie retrieves authentication cookies from Yahoo Finance
 func (u *UnaryAPI) getCookie() ([]*http.Cookie, error) {
-	req, err := http.NewRequest(http.MethodGet, u.sessionRootURL, nil)
+	parsedURL, err := url.Parse(u.sessionRootURL)
+	if err != nil {
+		return nil, fmt.Errorf("invalid URL: %w", err)
+	}
+
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return nil, errors.New("invalid URL scheme: must be http or https")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating cookie request: %w", err)
 	}
@@ -80,8 +89,17 @@ func (u *UnaryAPI) getCookieEU() ([]*http.Cookie, error) {
 	// Create a client with a redirect limit of 3 instead of the default of 1
 	client1 := u.createClientWithRedirectLimit(3)
 
+	parsedURL, err := url.Parse(u.sessionRootURL)
+	if err != nil {
+		return nil, fmt.Errorf("invalid URL: %w", err)
+	}
+
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return nil, errors.New("invalid URL scheme: must be http or https")
+	}
+
 	// First request to get redirected to consent page
-	req1, err := http.NewRequest(http.MethodGet, u.sessionRootURL, nil)
+	req1, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request for root URL: %w", err)
 	}
@@ -129,7 +147,16 @@ func (u *UnaryAPI) getCookieEU() ([]*http.Cookie, error) {
 
 	formDataStr := formData.Encode()
 
-	req2, err := http.NewRequest(http.MethodPost, u.sessionConsentURL+fmt.Sprintf(sessionConsentPathPattern, sessionID), strings.NewReader(formDataStr))
+	parsedConsentURL, err := url.Parse(u.sessionConsentURL + fmt.Sprintf(sessionConsentPathPattern, sessionID))
+	if err != nil {
+		return nil, fmt.Errorf("invalid URL: %w", err)
+	}
+
+	if parsedConsentURL.Scheme != "http" && parsedConsentURL.Scheme != "https" {
+		return nil, errors.New("invalid URL scheme: must be http or https")
+	}
+
+	req2, err := http.NewRequest(http.MethodPost, parsedConsentURL.String(), strings.NewReader(formDataStr))
 	if err != nil {
 		return nil, fmt.Errorf("error creating consent submission request: %w", err)
 	}
@@ -180,7 +207,16 @@ func (u *UnaryAPI) getCookieEU() ([]*http.Cookie, error) {
 
 // getCrumb retrieves the crumb value needed for authenticated requests
 func (u *UnaryAPI) getCrumb() (string, error) {
-	req, err := http.NewRequest(http.MethodGet, u.sessionCrumbURL+sessionCrumbPath, nil)
+	parsedURL, err := url.Parse(u.sessionCrumbURL + sessionCrumbPath)
+	if err != nil {
+		return "", fmt.Errorf("invalid URL: %w", err)
+	}
+
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return "", errors.New("invalid URL scheme: must be http or https")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
 	if err != nil {
 		return "", fmt.Errorf("error creating crumb request: %w", err)
 	}
