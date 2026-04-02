@@ -484,7 +484,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 				err := monitor.Start()
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("malformed ws or wss URL"))
+				Expect(err.Error()).To(ContainSubstring("invalid URL scheme: must be ws or wss"))
 			})
 		})
 

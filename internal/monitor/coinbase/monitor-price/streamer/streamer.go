@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
 	"sync"
 
@@ -91,8 +92,20 @@ func (s *Streamer) Start() error {
 
 	// Connect the websocket address in a goroutine
 	go func() {
-		url := s.url
-		conn, _, err := websocket.DefaultDialer.DialContext(s.ctx, url, nil)
+		urlStr := s.url
+
+		parsedURL, err := url.Parse(urlStr)
+		if err != nil {
+			errChan <- fmt.Errorf("invalid URL: %w", err)
+			return
+		}
+
+		if parsedURL.Scheme != "ws" && parsedURL.Scheme != "wss" {
+			errChan <- errors.New("invalid URL scheme: must be ws or wss")
+			return
+		}
+
+		conn, _, err := websocket.DefaultDialer.DialContext(s.ctx, parsedURL.String(), nil)
 		if err != nil {
 			errChan <- err
 

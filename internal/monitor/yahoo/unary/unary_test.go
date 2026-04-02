@@ -317,7 +317,7 @@ var _ = Describe("Unary", func() {
 							Expect(outputSlice).To(BeEmpty())
 							Expect(outputMap).To(BeEmpty())
 							Expect(outputError).To(HaveOccurred())
-							Expect(outputError.Error()).To(ContainSubstring("consent submission request"))
+							Expect(outputError.Error()).To(ContainSubstring("invalid URL"))
 						})
 					})
 
@@ -513,7 +513,7 @@ var _ = Describe("Unary", func() {
 								Expect(outputSlice).To(BeEmpty())
 								Expect(outputMap).To(BeEmpty())
 								Expect(outputError).To(HaveOccurred())
-								Expect(outputError.Error()).To(ContainSubstring("crumb request"))
+								Expect(outputError.Error()).To(ContainSubstring("invalid URL"))
 							})
 						})
 
@@ -597,7 +597,7 @@ var _ = Describe("Unary", func() {
 							Expect(outputSlice).To(BeEmpty())
 							Expect(outputMap).To(BeEmpty())
 							Expect(outputError).To(HaveOccurred())
-							Expect(outputError.Error()).To(ContainSubstring("error creating cookie request"))
+							Expect(outputError.Error()).To(ContainSubstring("invalid URL"))
 						})
 					})
 

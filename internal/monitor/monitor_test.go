@@ -285,7 +285,7 @@ var _ = Describe("Monitor", func() {
 
 					// Read the log output
 					logOutput, _ := io.ReadAll(logReader)
-					Expect(string(logOutput)).To(ContainSubstring("missing protocol scheme"))
+					Expect(string(logOutput)).To(ContainSubstring("invalid URL"))
 
 					// Clean up
 					m.Stop()
