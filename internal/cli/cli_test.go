@@ -42,7 +42,7 @@ func writeConfigFile(fs afero.Fs, contents string) {
 	home, _ := homedir.Dir()
 	fs.MkdirAll(home, 0755)
 	fs.Create(home + "/.ticker.yaml")
-	afero.WriteFile(fs, home+"/.ticker.yaml", []byte(contents), 0644)
+	afero.WriteFile(fs, home+"/.ticker.yaml", []byte(contents), 0600)
 
 }
 
@@ -479,7 +479,7 @@ var _ = Describe("Cli", func() {
 				depLocal = c.Dependencies{
 					Fs: afero.NewMemMapFs(),
 				}
-				afero.WriteFile(depLocal.Fs, ".ticker.yaml", []byte("watchlist:\n  - NOK"), 0644)
+				afero.WriteFile(depLocal.Fs, ".ticker.yaml", []byte("watchlist:\n  - NOK"), 0600)
 			})
 
 			When("an explicit config file is set", func() {
@@ -510,7 +510,7 @@ var _ = Describe("Cli", func() {
 						inputConfigPath := ""
 						depLocal.Fs.MkdirAll(inputHome, 0755)
 						depLocal.Fs.Create(inputHome + "/.ticker.yaml")
-						afero.WriteFile(depLocal.Fs, inputHome+"/.ticker.yaml", []byte("watchlist:\n  - AMD"), 0644)
+						afero.WriteFile(depLocal.Fs, inputHome+"/.ticker.yaml", []byte("watchlist:\n  - AMD"), 0600)
 						outputConfig, outputErr := GetConfig(depLocal, inputConfigPath, cli.Options{})
 
 						Expect(outputConfig.Watchlist).To(Equal([]string{"AMD"}))
@@ -523,7 +523,7 @@ var _ = Describe("Cli", func() {
 						inputConfigPath := ""
 						depLocal.Fs.MkdirAll(inputCurrentDirectory, 0755)
 						depLocal.Fs.Create(inputCurrentDirectory + "/.ticker.yaml")
-						afero.WriteFile(depLocal.Fs, inputCurrentDirectory+"/.ticker.yaml", []byte("watchlist:\n  - JNJ"), 0644)
+						afero.WriteFile(depLocal.Fs, inputCurrentDirectory+"/.ticker.yaml", []byte("watchlist:\n  - JNJ"), 0600)
 						outputConfig, outputErr := GetConfig(depLocal, inputConfigPath, cli.Options{})
 
 						Expect(outputConfig.Watchlist).To(Equal([]string{"JNJ"}))
@@ -538,7 +538,7 @@ var _ = Describe("Cli", func() {
 						inputConfigPath := ""
 						depLocal.Fs.MkdirAll(inputConfigHome, 0755)
 						depLocal.Fs.Create(inputConfigHome + "/.ticker.yaml")
-						afero.WriteFile(depLocal.Fs, inputConfigHome+"/.ticker.yaml", []byte("watchlist:\n  - ABNB"), 0644)
+						afero.WriteFile(depLocal.Fs, inputConfigHome+"/.ticker.yaml", []byte("watchlist:\n  - ABNB"), 0600)
 						outputConfig, outputErr := GetConfig(depLocal, inputConfigPath, cli.Options{})
 						os.Unsetenv("XDG_CONFIG_HOME")
 
@@ -561,7 +561,7 @@ var _ = Describe("Cli", func() {
 			When("there is an error parsing the config file", func() {
 				It("returns the error", func() {
 					inputConfigPath := ".ticker.yaml"
-					afero.WriteFile(depLocal.Fs, ".ticker.yaml", []byte("watchlist:\n   NOK"), 0644)
+					afero.WriteFile(depLocal.Fs, ".ticker.yaml", []byte("watchlist:\n   NOK"), 0600)
 					outputConfig, outputErr := GetConfig(depLocal, inputConfigPath, cli.Options{})
 
 					Expect(outputConfig).To(Equal(c.Config{}))
