@@ -364,7 +364,7 @@ func getLogger(d c.Dependencies) (*log.Logger, error) {
 	// Create log file with current date
 	currentTime := time.Now()
 	logFileName := fmt.Sprintf("ticker-log-%s.log", currentTime.Format("2006-01-02"))
-	logFile, err := d.Fs.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logFile, err := d.Fs.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create log file: %w", err)
 	}
