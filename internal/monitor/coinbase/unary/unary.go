@@ -14,6 +14,7 @@ import (
 
 const (
 	productTypeFuture = "FUTURE"
+	defaultUserAgent  = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 )
 
 // Response represents the container object from the API response
@@ -193,7 +194,7 @@ func (u *UnaryAPI) GetAssetQuotes(symbols []string) ([]c.AssetQuote, map[string]
 		return nil, nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36")
+	req.Header.Set("User-Agent", defaultUserAgent)
 
 	// Make request
 	resp, err := u.client.Do(req)
