@@ -111,7 +111,12 @@ func (s *Streamer) Start() error {
 
 			return
 		}
-		connChan <- conn
+
+		select {
+		case <-s.ctx.Done():
+			conn.Close()
+		case connChan <- conn:
+		}
 	}()
 
 	// Wait for either connection, error, or context cancellation
