@@ -364,7 +364,12 @@ func getGroups(config c.Config, d c.Dependencies) ([]c.AssetGroup, error) {
 func getLogger(d c.Dependencies) (*log.Logger, error) {
 	// Create log file with current date
 	logDir := filepath.Join(xdg.StateHome, "ticker")
-	err := d.Fs.MkdirAll(logDir, 0700)
+if err := d.Fs.MkdirAll(logDir, 0700); err != nil {
+		return nil, fmt.Errorf("failed to create log directory: %w", err)
+	}
+	if err := d.Fs.Chmod(logDir, 0700); err != nil {
+		return nil, fmt.Errorf("failed to set log directory permissions: %w", err)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to create log directory: %w", err)
 	}
