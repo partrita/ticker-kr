@@ -363,7 +363,7 @@ var _ = Describe("Cli", func() {
 
 				_, outputErr := GetContext(dep, c.Config{Debug: true})
 
-				Expect(outputErr).To(MatchError("failed to create log file: operation not permitted"))
+				Expect(outputErr).To(MatchError("failed to create log directory: operation not permitted"))
 			})
 
 		})
