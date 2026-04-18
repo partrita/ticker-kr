@@ -370,9 +370,6 @@ if err := d.Fs.MkdirAll(logDir, 0700); err != nil {
 	if err := d.Fs.Chmod(logDir, 0700); err != nil {
 		return nil, fmt.Errorf("failed to set log directory permissions: %w", err)
 	}
-	if err != nil {
-		return nil, fmt.Errorf("failed to create log directory: %w", err)
-	}
 
 	currentTime := time.Now()
 	logFileName := filepath.Join(logDir, fmt.Sprintf("ticker-log-%s.log", currentTime.Format("2006-01-02")))
