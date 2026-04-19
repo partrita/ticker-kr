@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 	"sync"
+	"time"
 
 	c "github.com/achannarasappa/ticker/v5/internal/common"
 	"github.com/gorilla/websocket"
@@ -105,7 +106,12 @@ func (s *Streamer) Start() error {
 			return
 		}
 
-		conn, _, err := websocket.DefaultDialer.DialContext(s.ctx, parsedURL.String(), nil)
+		dialer := &websocket.Dialer{
+			Proxy:            websocket.DefaultDialer.Proxy,
+			HandshakeTimeout: 10 * time.Second,
+		}
+
+		conn, _, err := dialer.DialContext(s.ctx, parsedURL.String(), nil)
 		if err != nil {
 			errChan <- err
 
