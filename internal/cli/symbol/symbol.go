@@ -12,6 +12,8 @@ import (
 	c "github.com/achannarasappa/ticker/v5/internal/common"
 )
 
+const defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+
 type SymbolSourceMap struct { //nolint:golint,revive
 	TickerSymbol string
 	SourceSymbol string
@@ -80,6 +82,8 @@ func GetTickerSymbols(symbolUrl string) (TickerSymbolToSourceSymbol, error) {
 	if err != nil {
 		return TickerSymbolToSourceSymbol{}, err
 	}
+
+	req.Header.Set("User-Agent", defaultUserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {
