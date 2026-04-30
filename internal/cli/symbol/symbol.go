@@ -50,6 +50,11 @@ func parseTickerSymbolToSourceSymbol(body io.ReadCloser) (TickerSymbolToSourceSy
 			return nil, err
 		}
 
+		// Security: Validate input length to prevent index out of bounds panic
+		if len(row) < 3 {
+			continue
+		}
+
 		if _, exists := out[row[0]]; !exists {
 			out[row[0]] = SymbolSourceMap{
 				TickerSymbol: row[0],
