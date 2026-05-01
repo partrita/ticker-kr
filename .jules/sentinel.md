@@ -10,3 +10,7 @@
 **Vulnerability:** In `internal/cli/symbol/symbol.go`, the application was sending HTTP requests without a standard `User-Agent` header, causing it to be exposed to inadvertent blocks by APIs, rate-limiters, or bot protections that check for valid HTTP headers.
 **Learning:** This could lead to a localized Denial of Service (DoS) for users whose requests fail consistently because the APIs reject standard Go default behavior. Using variables and constants for standard user-agent strings promotes consistency and maintains uptime.
 **Prevention:** Avoid hardcoding HTTP header values inline or missing them entirely. Define explicit constants (e.g., `defaultUserAgent`) and use `http.NewRequest` combined with explicit header assignment (like `req.Header.Set("User-Agent", defaultUserAgent)`) instead of `http.Get()`.
+## 2026-04-30 - Fix Missing Input Validation on CSV Parsing
+**Vulnerability:** In `internal/cli/symbol/symbol.go`, `parseTickerSymbolToSourceSymbol` parsed a CSV response directly from a URL without validating that the row contained the expected number of columns.
+**Learning:** If the CSV is malformed or maliciously crafted (e.g., missing columns), the application will panic when trying to access `row[2]`, resulting in a Denial of Service (DoS) and application crash.
+**Prevention:** Always validate the length of slices returned from untrusted or external data parsers (like CSV or JSON arrays) before accessing specific indices by index number.
