@@ -14,7 +14,7 @@ import (
 
 const (
 	productTypeFuture = "FUTURE"
-	defaultUserAgent  = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+	maxRedirects      = 3
 )
 
 // Response represents the container object from the API response
@@ -63,15 +63,53 @@ type AssetQuotesIndexed struct {
 type UnaryAPI struct {
 	client  *http.Client
 	baseURL string
+	// allowLoopback lets the client reach a server on the local machine. It is only
+	// set by tests and local proxies; configured URLs keep the default and are
+	// rejected when they point at loopback or another internal address.
+	allowLoopback bool
 }
 
-func NewUnaryAPI(baseURL string) *UnaryAPI {
-	return &UnaryAPI{
-		client: &http.Client{
-			Timeout: 10 * time.Second, // Prevent uncontrolled resource exhaustion
-		},
+// Option configures a UnaryAPI client
+type Option func(*UnaryAPI)
+
+// WithAllowLoopback permits requests to loopback addresses so the client can be
+// pointed at a local test server or proxy. Private and link-local addresses stay
+// blocked, and the option must not be used for URLs taken from user
+// configuration.
+func WithAllowLoopback() Option {
+	return func(u *UnaryAPI) {
+		u.allowLoopback = true
+	}
+}
+
+func NewUnaryAPI(baseURL string, opts ...Option) *UnaryAPI {
+	u := &UnaryAPI{
 		baseURL: baseURL,
 	}
+
+	for _, opt := range opts {
+		opt(u)
+	}
+
+	u.client = &http.Client{
+		Timeout: 10 * time.Second, // Prevent uncontrolled resource exhaustion
+		// Redirect targets are validated the same way as the configured URL so a
+		// 3xx response cannot move the request to a host that would have been
+		// rejected up front.
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= maxRedirects {
+				return http.ErrUseLastResponse
+			}
+
+			if _, err := c.ValidateHTTPURL(req.URL.String(), u.allowLoopback); err != nil {
+				return fmt.Errorf("blocked redirect: %w", err)
+			}
+
+			return nil
+		},
+	}
+
+	return u
 }
 
 func formatExpiry(expirationDate time.Time) string {
@@ -174,13 +212,14 @@ func (u *UnaryAPI) GetAssetQuotes(symbols []string) ([]c.AssetQuote, map[string]
 	}
 
 	// Build URL with query parameters
-	reqURL, err := url.Parse(u.baseURL + "/api/v3/brokerage/market/products")
+	requestURL, err := url.JoinPath(u.baseURL, "api/v3/brokerage/market/products")
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to parse url: %w", err)
+		return nil, nil, fmt.Errorf("failed to build url: %w", err)
 	}
 
-	if reqURL.Scheme != "http" && reqURL.Scheme != "https" {
-		return nil, nil, fmt.Errorf("invalid URL scheme: must be http or https")
+	reqURL, err := c.ValidateHTTPURL(requestURL, u.allowLoopback)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	q := reqURL.Query()
@@ -194,7 +233,7 @@ func (u *UnaryAPI) GetAssetQuotes(symbols []string) ([]c.AssetQuote, map[string]
 		return nil, nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", defaultUserAgent)
+	req.Header.Set("User-Agent", c.DefaultUserAgent)
 
 	// Make request
 	resp, err := u.client.Do(req)

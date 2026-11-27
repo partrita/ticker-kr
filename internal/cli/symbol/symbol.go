@@ -12,8 +12,6 @@ import (
 	c "github.com/achannarasappa/ticker/v5/internal/common"
 )
 
-const defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
-
 type SymbolSourceMap struct { //nolint:golint,revive
 	TickerSymbol string
 	SourceSymbol string
@@ -36,6 +34,10 @@ func parseTickerSymbolToSourceSymbol(body io.ReadCloser) (TickerSymbolToSourceSy
 	out := TickerSymbolToSourceSymbol{}
 	reader := csv.NewReader(body)
 	reader.LazyQuotes = true
+	// Rows are validated one by one below. Without this, the reader fixes the
+	// expected field count to the first record and a single malformed row (for
+	// example a short line) fails the read and discards every row after it.
+	reader.FieldsPerRecord = -1
 	for {
 
 		row, err := reader.Read()
@@ -88,7 +90,7 @@ func GetTickerSymbols(symbolUrl string) (TickerSymbolToSourceSymbol, error) {
 		return TickerSymbolToSourceSymbol{}, err
 	}
 
-	req.Header.Set("User-Agent", defaultUserAgent)
+	req.Header.Set("User-Agent", c.DefaultUserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {

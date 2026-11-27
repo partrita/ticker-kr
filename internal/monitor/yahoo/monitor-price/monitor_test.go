@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"sync/atomic"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -25,7 +26,8 @@ var _ = Describe("Monitor Yahoo", func() {
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		unaryAPI = unary.NewUnaryAPI(unary.Config{
-			BaseURL: server.URL(),
+			AllowLoopback: true,
+			BaseURL:       server.URL(),
 		})
 	})
 
@@ -504,15 +506,14 @@ var _ = Describe("Monitor Yahoo", func() {
 				monitor.Stop()
 			})
 
-			When("there is an error getting asset quotes and replacing the cache after new currency rates are recieved", func() {
-				It("should send a message to the error channel", func() {
+			When("the quote endpoint starts failing while new currency rates are received", func() {
+				It("should replace the cache without failing and keep serving the cached quotes", func() {
 
-					var err error
-					var respondWithError bool = false
+					var respondWithError atomic.Bool
 
 					server.RouteToHandler("GET", "/v7/finance/quote",
 						func(w http.ResponseWriter, r *http.Request) {
-							if respondWithError {
+							if respondWithError.Load() {
 								w.Write([]byte("invalid"))
 							} else {
 								json.NewEncoder(w).Encode(responseQuote1Fixture)
@@ -533,13 +534,20 @@ var _ = Describe("Monitor Yahoo", func() {
 						ChanError:                errorChan,
 					}, monitorPriceYahoo.WithRefreshInterval(100*time.Millisecond))
 
-					err = monitor.SetSymbols([]string{"NET"}, 0)
+					err := monitor.SetSymbols([]string{"NET"}, 0)
 					Expect(err).NotTo(HaveOccurred())
 
 					err = monitor.Start()
 					Expect(err).NotTo(HaveOccurred())
 
-					// Send currency rates update
+					// Wait for the first quote so the cache is populated
+					Eventually(func() []c.AssetQuote {
+						quotes, _ := monitor.GetAssetQuotes()
+						return quotes
+					}, 2*time.Second).ShouldNot(BeEmpty())
+
+					respondWithError.Store(true)
+
 					currencyRates := c.CurrencyRates{
 						"USD": c.CurrencyRate{
 							FromCurrency: "USD",
@@ -548,10 +556,15 @@ var _ = Describe("Monitor Yahoo", func() {
 						},
 					}
 
-					respondWithError = true
+					// Replacing the cache no longer refetches quotes, so it must not
+					// surface the endpoint failure as its own error.
 					err = monitor.SetCurrencyRates(currencyRates)
+					Expect(err).NotTo(HaveOccurred())
 
-					Expect(err).To(MatchError(ContainSubstring("failed to decode response")))
+					quotes, err := monitor.GetAssetQuotes()
+					Expect(err).NotTo(HaveOccurred())
+					Expect(quotes).NotTo(BeEmpty())
+					Expect(quotes[0].Currency.Rate).To(Equal(0.85))
 
 					monitor.Stop()
 				})

@@ -41,6 +41,7 @@ var _ = Describe("Poller", func() {
 		ctx, cancel = context.WithCancel(context.Background())
 
 		inputUnaryAPI = unary.NewUnaryAPI(unary.Config{
+			AllowLoopback:     true,
 			BaseURL:           server.URL(),
 			SessionRootURL:    server.URL(),
 			SessionCrumbURL:   server.URL(),

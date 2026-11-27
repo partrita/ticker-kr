@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	c "github.com/achannarasappa/ticker/v5/internal/common"
 )
@@ -20,6 +19,7 @@ type UnaryAPI struct {
 	sessionConsentURL string
 	cookies           []*http.Cookie
 	crumb             string
+	allowLoopback     bool
 }
 
 // Config contains configuration options for the UnaryAPI client
@@ -28,6 +28,10 @@ type Config struct {
 	SessionRootURL    string
 	SessionCrumbURL   string
 	SessionConsentURL string
+	// AllowLoopback permits requests to loopback addresses so the client can be
+	// pointed at a local test server or proxy. Private and link-local addresses
+	// stay blocked, and it must not be set for URLs taken from configuration.
+	AllowLoopback bool
 }
 
 type SymbolToCurrency struct {
@@ -37,25 +41,18 @@ type SymbolToCurrency struct {
 
 // NewUnaryAPI creates a new client
 func NewUnaryAPI(config Config) *UnaryAPI {
-	// Create client with limited redirects
-	client := &http.Client{
-		Timeout: 10 * time.Second, // Prevent uncontrolled resource exhaustion
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			if len(via) >= 1 {
-				return http.ErrUseLastResponse
-			}
-
-			return nil
-		},
-	}
-
-	return &UnaryAPI{
-		client:            client,
+	u := &UnaryAPI{
 		baseURL:           config.BaseURL,
 		sessionRootURL:    config.SessionRootURL,
 		sessionCrumbURL:   config.SessionCrumbURL,
 		sessionConsentURL: config.SessionConsentURL,
+		allowLoopback:     config.AllowLoopback,
 	}
+
+	// Create client with limited redirects
+	u.client = u.createClientWithRedirectLimit(1)
+
+	return u
 }
 
 // GetAssetQuotes issues a HTTP request to retrieve quotes from the API and process the response
@@ -159,13 +156,14 @@ func (u *UnaryAPI) GetCurrencyRates(fromCurrencies []string, toCurrency string) 
 func (u *UnaryAPI) getQuotes(symbols []string, fields []string) (Response, error) {
 
 	// Build URL with query parameters
-	reqURL, err := url.Parse(u.baseURL + "/v7/finance/quote")
+	requestURL, err := url.JoinPath(u.baseURL, "v7/finance/quote")
 	if err != nil {
 		return Response{}, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	if reqURL.Scheme != "http" && reqURL.Scheme != "https" {
-		return Response{}, fmt.Errorf("invalid URL scheme: must be http or https")
+	reqURL, err := c.ValidateHTTPURL(requestURL, u.allowLoopback)
+	if err != nil {
+		return Response{}, err
 	}
 
 	q := reqURL.Query()
@@ -196,7 +194,7 @@ func (u *UnaryAPI) getQuotes(symbols []string, fields []string) (Response, error
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Accept-Language", defaultAcceptLang)
 	req.Header.Set("Origin", u.baseURL)
-	req.Header.Set("User-Agent", defaultUserAgent)
+	req.Header.Set("User-Agent", c.DefaultUserAgent)
 
 	// Add cookies if available
 	if len(u.cookies) > 0 {

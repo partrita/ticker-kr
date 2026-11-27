@@ -37,6 +37,9 @@ type ConfigMonitor struct {
 	RefreshInterval int
 	TargetCurrency  string
 	Logger          *log.Logger
+	// AllowLoopback lets the monitors reach a local test server or proxy. It must
+	// stay false for URLs taken from user configuration.
+	AllowLoopback bool
 	ConfigMonitorPriceCoinbase
 	ConfigMonitorsYahoo
 }
@@ -75,6 +78,7 @@ func NewMonitor(configMonitor ConfigMonitor) (*Monitor, error) {
 		monitorPriceCoinbase.Config{
 			Ctx:                      ctx,
 			UnaryURL:                 configMonitor.ConfigMonitorPriceCoinbase.BaseURL,
+			AllowLoopback:            configMonitor.AllowLoopback,
 			ChanError:                chanError,
 			ChanUpdateAssetQuote:     chanUpdateAssetQuote,
 			ChanRequestCurrencyRates: chanRequestCurrencyRate,
@@ -93,6 +97,7 @@ func NewMonitor(configMonitor ConfigMonitor) (*Monitor, error) {
 		SessionRootURL:    configMonitor.ConfigMonitorsYahoo.SessionRootURL,
 		SessionCrumbURL:   configMonitor.ConfigMonitorsYahoo.SessionCrumbURL,
 		SessionConsentURL: configMonitor.ConfigMonitorsYahoo.SessionConsentURL,
+		AllowLoopback:     configMonitor.AllowLoopback,
 	})
 
 	yahoo, err := monitorPriceYahoo.NewMonitorPriceYahoo(

@@ -53,7 +53,7 @@ var _ = Describe("Poller", func() {
 	Describe("NewPoller", func() {
 		It("should create a new poller instance", func() {
 			p := poller.NewPoller(context.Background(), poller.PollerConfig{
-				UnaryAPI:             unary.NewUnaryAPI(server.URL()),
+				UnaryAPI:             unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback()),
 				ChanUpdateAssetQuote: make(chan c.MessageUpdate[c.AssetQuote], 5),
 			})
 			Expect(p).NotTo(BeNil())
@@ -66,7 +66,7 @@ var _ = Describe("Poller", func() {
 			inputChanUpdateAssetQuote := make(chan c.MessageUpdate[c.AssetQuote], 5)
 
 			p := poller.NewPoller(context.Background(), poller.PollerConfig{
-				UnaryAPI:             unary.NewUnaryAPI(server.URL()),
+				UnaryAPI:             unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback()),
 				ChanUpdateAssetQuote: inputChanUpdateAssetQuote,
 			})
 			p.SetSymbols([]string{"BTC-USD"}, 0)
@@ -91,7 +91,7 @@ var _ = Describe("Poller", func() {
 			When("and the poller is started again", func() {
 				It("should return an error", func() {
 					p := poller.NewPoller(context.Background(), poller.PollerConfig{
-						UnaryAPI:             unary.NewUnaryAPI(server.URL()),
+						UnaryAPI:             unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback()),
 						ChanUpdateAssetQuote: make(chan c.MessageUpdate[c.AssetQuote], 5),
 					})
 					p.SetSymbols([]string{"BTC-USD"}, 0)
@@ -109,7 +109,7 @@ var _ = Describe("Poller", func() {
 			When("and the refresh interval is set again", func() {
 				It("should return an error", func() {
 					p := poller.NewPoller(context.Background(), poller.PollerConfig{
-						UnaryAPI:             unary.NewUnaryAPI(server.URL()),
+						UnaryAPI:             unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback()),
 						ChanUpdateAssetQuote: make(chan c.MessageUpdate[c.AssetQuote], 5),
 					})
 					p.SetSymbols([]string{"BTC-USD"}, 0)
@@ -129,7 +129,7 @@ var _ = Describe("Poller", func() {
 		When("the refresh interval is not set", func() {
 			It("should return an error", func() {
 				p := poller.NewPoller(context.Background(), poller.PollerConfig{
-					UnaryAPI:             unary.NewUnaryAPI(server.URL()),
+					UnaryAPI:             unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback()),
 					ChanUpdateAssetQuote: make(chan c.MessageUpdate[c.AssetQuote], 5),
 				})
 				p.SetSymbols([]string{"BTC-USD"}, 0)
@@ -146,7 +146,7 @@ var _ = Describe("Poller", func() {
 				inputChanUpdateAssetQuote := make(chan c.MessageUpdate[c.AssetQuote], 5)
 
 				p := poller.NewPoller(context.Background(), poller.PollerConfig{
-					UnaryAPI:             unary.NewUnaryAPI(server.URL()),
+					UnaryAPI:             unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback()),
 					ChanUpdateAssetQuote: inputChanUpdateAssetQuote,
 				})
 				p.SetRefreshInterval(time.Millisecond * 100)
@@ -196,7 +196,7 @@ var _ = Describe("Poller", func() {
 				outputChanError := make(chan error, 1)
 
 				p := poller.NewPoller(context.Background(), poller.PollerConfig{
-					UnaryAPI:             unary.NewUnaryAPI(server.URL()),
+					UnaryAPI:             unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback()),
 					ChanUpdateAssetQuote: make(chan c.MessageUpdate[c.AssetQuote], 5),
 					ChanError:            outputChanError,
 				})
@@ -222,7 +222,7 @@ var _ = Describe("Poller", func() {
 				outputChanError := make(chan error, 5)
 
 				p := poller.NewPoller(ctx, poller.PollerConfig{
-					UnaryAPI:             unary.NewUnaryAPI(server.URL()),
+					UnaryAPI:             unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback()),
 					ChanUpdateAssetQuote: outputChanUpdateAssetQuote,
 					ChanError:            outputChanError,
 				})

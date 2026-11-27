@@ -71,6 +71,7 @@ var _ = Describe("Print", func() {
 
 		inputDependencies = c.Dependencies{
 			SymbolsURL:                       server.URL() + "/symbols.csv",
+			AllowLoopback:                    true,
 			MonitorYahooBaseURL:              server.URL(),
 			MonitorYahooSessionRootURL:       server.URL(),
 			MonitorYahooSessionCrumbURL:      server.URL(),

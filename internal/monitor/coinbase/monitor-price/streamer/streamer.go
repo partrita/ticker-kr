@@ -87,8 +87,13 @@ func (s *Streamer) Start() error {
 		return nil
 	}
 
-	// Create connection channel for result
-	connChan := make(chan *websocket.Conn, 1)
+	// Create connection channel for result. The channel is unbuffered so the
+	// connection is handed over to Start synchronously: if the context is already
+	// cancelled, Start takes the <-s.ctx.Done() branch instead of the hand-off and
+	// the dialing goroutine takes its own done branch and closes the connection.
+	// With a buffered channel both cases can be ready at once and the connection
+	// ends up in the buffer without a reader, which leaks it.
+	connChan := make(chan *websocket.Conn)
 	errChan := make(chan error, 1)
 
 	// Connect the websocket address in a goroutine

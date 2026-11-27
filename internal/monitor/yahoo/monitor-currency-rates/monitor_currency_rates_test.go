@@ -25,6 +25,7 @@ var _ = Describe("MonitorCurrencyRates", func() {
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		client = unary.NewUnaryAPI(unary.Config{
+			AllowLoopback:     true,
 			BaseURL:           server.URL(),
 			SessionRootURL:    server.URL(),
 			SessionCrumbURL:   server.URL(),
@@ -219,6 +220,7 @@ var _ = Describe("MonitorCurrencyRates", func() {
 					It("should send the error to the error channel", func() {
 						// Use an invalid UnaryAPI to force an error
 						invalidClient := unary.NewUnaryAPI(unary.Config{
+							AllowLoopback:     true,
 							BaseURL:           "http://example.com/\x00",
 							SessionRootURL:    server.URL(),
 							SessionCrumbURL:   server.URL(),

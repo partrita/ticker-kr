@@ -33,6 +33,7 @@ var _ = Describe("Monitor Coinbase", func() {
 		It("should return a new MonitorCoinbase", func() {
 			monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 				UnaryURL:                 server.URL(),
+				AllowLoopback:            true,
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
 			})
@@ -44,6 +45,7 @@ var _ = Describe("Monitor Coinbase", func() {
 				url := "wss://websocket-feed.exchange.coinbase.com"
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
 				}, monitorPriceCoinbase.WithStreamingURL(url))
@@ -57,6 +59,7 @@ var _ = Describe("Monitor Coinbase", func() {
 				interval := 10 * time.Second
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
 				}, monitorPriceCoinbase.WithRefreshInterval(interval))
@@ -137,6 +140,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 			monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 				UnaryURL:                 server.URL(),
+				AllowLoopback:            true,
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
 			})
@@ -166,6 +170,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
 				})
@@ -231,6 +236,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
 				})
@@ -355,6 +361,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
+						AllowLoopback:            true,
 						Ctx:                      context.Background(),
 						ChanRequestCurrencyRates: make(chan []string, 1),
 					})
@@ -383,6 +390,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
+						AllowLoopback:            true,
 						Ctx:                      context.Background(),
 						ChanRequestCurrencyRates: make(chan []string, 1),
 					})
@@ -400,6 +408,7 @@ var _ = Describe("Monitor Coinbase", func() {
 		It("should start the monitor", func() {
 			monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 				UnaryURL:                 server.URL(),
+				AllowLoopback:            true,
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
 			}, monitorPriceCoinbase.WithRefreshInterval(10*time.Second))
@@ -412,6 +421,7 @@ var _ = Describe("Monitor Coinbase", func() {
 			It("should return an error", func() {
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
 				}, monitorPriceCoinbase.WithRefreshInterval(10*time.Second))
@@ -436,6 +446,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
 				}, monitorPriceCoinbase.WithRefreshInterval(10*time.Second))
@@ -475,6 +486,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
 				}, monitorPriceCoinbase.WithRefreshInterval(10*time.Second),
@@ -516,6 +528,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
 				})
@@ -579,6 +592,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					ChanUpdateAssetQuote:     updateChan,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -641,6 +655,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
+						AllowLoopback:            true,
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
 						ChanRequestCurrencyRates: make(chan []string, 1),
@@ -702,6 +717,7 @@ var _ = Describe("Monitor Coinbase", func() {
 
 					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
+						AllowLoopback:            true,
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
 						ChanRequestCurrencyRates: make(chan []string, 1),
@@ -807,6 +823,7 @@ var _ = Describe("Monitor Coinbase", func() {
 				// Create a monitor with a short refresh interval for testing
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					ChanUpdateAssetQuote:     updateChan,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -863,6 +880,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					// Create a monitor with a short refresh interval for testing
 					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
+						AllowLoopback:            true,
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
 						ChanRequestCurrencyRates: make(chan []string, 1),
@@ -940,6 +958,7 @@ var _ = Describe("Monitor Coinbase", func() {
 					// Create a monitor with a short refresh interval
 					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
+						AllowLoopback:            true,
 						ChanUpdateAssetQuote:     updateChan,
 						Ctx:                      context.Background(),
 						ChanRequestCurrencyRates: make(chan []string, 1),
@@ -1079,6 +1098,7 @@ var _ = Describe("Monitor Coinbase", func() {
 				// Create and start the monitor
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					ChanUpdateAssetQuote:     updateChan,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
@@ -1108,8 +1128,8 @@ var _ = Describe("Monitor Coinbase", func() {
 				monitor.Stop()
 			})
 
-			When("there is an error getting asset quotes and replacing the cache after new currency rates are recieved", func() {
-				It("should send a message to the error channel", func() {
+			When("the quote endpoint starts failing while new currency rates are received", func() {
+				It("should replace the cache without failing and keep serving the cached quotes", func() {
 					// Set up initial server response for asset quotes
 					server.RouteToHandler("GET", "/api/v3/brokerage/market/products",
 						ghttp.CombineHandlers(
@@ -1134,11 +1154,12 @@ var _ = Describe("Monitor Coinbase", func() {
 					)
 
 					// Create channels for updates and errors
-					errorChan := make(chan error, 1)
+					errorChan := make(chan error, 5)
 
 					// Create and start the monitor
 					monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 						UnaryURL:                 server.URL(),
+						AllowLoopback:            true,
 						ChanError:                errorChan,
 						Ctx:                      context.Background(),
 						ChanRequestCurrencyRates: make(chan []string, 1),
@@ -1146,6 +1167,12 @@ var _ = Describe("Monitor Coinbase", func() {
 
 					monitor.SetSymbols([]string{"BTC-USD"}, 0)
 					monitor.Start()
+
+					// Wait for the first quote so the cache is populated
+					Eventually(func() []c.AssetQuote {
+						quotes, _ := monitor.GetAssetQuotes()
+						return quotes
+					}, 2*time.Second).ShouldNot(BeEmpty())
 
 					// Set up error response for the subsequent asset quote request
 					server.RouteToHandler("GET", "/api/v3/brokerage/market/products",
@@ -1155,7 +1182,6 @@ var _ = Describe("Monitor Coinbase", func() {
 						),
 					)
 
-					// Send currency rates update to trigger asset quote refresh
 					currencyRates := c.CurrencyRates{
 						"USD": c.CurrencyRate{
 							FromCurrency: "USD",
@@ -1164,10 +1190,15 @@ var _ = Describe("Monitor Coinbase", func() {
 						},
 					}
 
+					// Replacing the cache no longer refetches quotes, so it must not
+					// surface the endpoint failure as its own error.
 					err := monitor.SetCurrencyRates(currencyRates)
-					Expect(err).To(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 
-					Expect(err.Error()).To(ContainSubstring("request failed with status 500"))
+					quotes, err := monitor.GetAssetQuotes()
+					Expect(err).NotTo(HaveOccurred())
+					Expect(quotes).NotTo(BeEmpty())
+					Expect(quotes[0].Currency.Rate).To(Equal(0.85))
 
 					monitor.Stop()
 				})
@@ -1181,6 +1212,7 @@ var _ = Describe("Monitor Coinbase", func() {
 		It("should stop the monitor", func() {
 			monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 				UnaryURL:                 server.URL(),
+				AllowLoopback:            true,
 				Ctx:                      context.Background(),
 				ChanRequestCurrencyRates: make(chan []string, 1),
 			}, monitorPriceCoinbase.WithRefreshInterval(10*time.Second))
@@ -1196,6 +1228,7 @@ var _ = Describe("Monitor Coinbase", func() {
 			It("should return an error", func() {
 				monitor, _ := monitorPriceCoinbase.NewMonitorPriceCoinbase(monitorPriceCoinbase.Config{
 					UnaryURL:                 server.URL(),
+					AllowLoopback:            true,
 					Ctx:                      context.Background(),
 					ChanRequestCurrencyRates: make(chan []string, 1),
 				})
