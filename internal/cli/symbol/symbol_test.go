@@ -105,11 +105,12 @@ var _ = Describe("Symbol", func() {
 
 		When("a malformed CSV is returned", func() {
 
-			It("should get ticker symbols", func() {
+			It("should skip the malformed rows and keep the valid ones", func() {
 				// Set up mock response
 				responseFixture := `"SOMESYMBOL.X","some-symbol","uk"
 "SOMESYMBOL.X","some-symbol","uk", "abc"
 "test"
+"AAPL","aapl",""
 `
 				server.RouteToHandler("GET", "/symbols.csv",
 					ghttp.CombineHandlers(
@@ -117,9 +118,12 @@ var _ = Describe("Symbol", func() {
 					),
 				)
 
-				_, outputErr := symbol.GetTickerSymbols(server.URL() + "/symbols.csv")
+				outputSymbols, outputErr := symbol.GetTickerSymbols(server.URL() + "/symbols.csv")
 
-				Expect(outputErr).ToNot(BeNil())
+				Expect(outputErr).To(BeNil())
+				Expect(outputSymbols).To(HaveLen(2))
+				Expect(outputSymbols).To(HaveKey("SOMESYMBOL.X"))
+				Expect(outputSymbols).To(HaveKey("AAPL"))
 			})
 
 		})
