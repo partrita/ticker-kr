@@ -142,6 +142,7 @@ func Run(dep *c.Dependencies, ctx *c.Context, options *Options) func(*cobra.Comm
 	return func(_ *cobra.Command, _ []string) {
 
 		monitors, _ := mon.NewMonitor(mon.ConfigMonitor{
+			AllowLoopback:   dep.AllowLoopback,
 			RefreshInterval: ctx.Config.RefreshInterval,
 			ConfigMonitorsYahoo: mon.ConfigMonitorsYahoo{
 				BaseURL:           dep.MonitorYahooBaseURL,
@@ -173,6 +174,7 @@ func RunSummary(dep *c.Dependencies, ctx *c.Context, options *Options) func(cmd 
 	return func(_ *cobra.Command, _ []string) {
 
 		monitors, _ := mon.NewMonitor(mon.ConfigMonitor{
+			AllowLoopback:   dep.AllowLoopback,
 			RefreshInterval: ctx.Config.RefreshInterval,
 			ConfigMonitorsYahoo: mon.ConfigMonitorsYahoo{
 				BaseURL:           dep.MonitorYahooBaseURL,

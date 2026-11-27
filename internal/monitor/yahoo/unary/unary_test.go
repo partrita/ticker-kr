@@ -99,6 +99,7 @@ var _ = Describe("Unary", func() {
 			When("the request is invalid", func() {
 				It("should return an error", func() {
 					invalidClient := unary.NewUnaryAPI(unary.Config{
+						AllowLoopback:     true,
 						BaseURL:           "http://example.com/\x00",
 						SessionRootURL:    server.URL(),
 						SessionCrumbURL:   server.URL(),
@@ -307,6 +308,7 @@ var _ = Describe("Unary", func() {
 
 							// Use an invalid URL for consent endpoint
 							invalidClient := unary.NewUnaryAPI(unary.Config{
+								AllowLoopback:     true,
 								BaseURL:           server.URL(),
 								SessionRootURL:    server.URL(),
 								SessionCrumbURL:   server.URL(),
@@ -503,6 +505,7 @@ var _ = Describe("Unary", func() {
 
 								// Use an invalid URL for crumb endpoint
 								invalidClient := unary.NewUnaryAPI(unary.Config{
+									AllowLoopback:     true,
 									BaseURL:           server.URL(),
 									SessionRootURL:    server.URL(),
 									SessionCrumbURL:   "http://\x7f.com",
@@ -582,6 +585,7 @@ var _ = Describe("Unary", func() {
 						It("should return an error", func() {
 
 							client := unary.NewUnaryAPI(unary.Config{
+								AllowLoopback:     true,
 								BaseURL:           server.URL(),
 								SessionRootURL:    "http://\x7f.com",
 								SessionCrumbURL:   server.URL(),
@@ -761,6 +765,7 @@ var _ = Describe("Unary", func() {
 // Create a new API client for testing
 func newTestClient(server *ghttp.Server) *unary.UnaryAPI {
 	return unary.NewUnaryAPI(unary.Config{
+		AllowLoopback:     true,
 		BaseURL:           server.URL(),
 		SessionRootURL:    server.URL(),
 		SessionCrumbURL:   server.URL(),

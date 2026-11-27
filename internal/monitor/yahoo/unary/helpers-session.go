@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	c "github.com/achannarasappa/ticker/v5/internal/common"
 )
 
 // Constants for URLs and common header values
@@ -18,7 +20,6 @@ const (
 	sessionConsentPathPattern = "/v2/collectConsent?sessionId=%s"
 
 	// Common header values
-	defaultUserAgent   = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 	defaultAcceptValue = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
 	defaultAcceptLang  = "en-US,en;q=0.9"
 )
@@ -44,13 +45,9 @@ func (u *UnaryAPI) refreshSession() error {
 
 // getCookie retrieves authentication cookies from Yahoo Finance
 func (u *UnaryAPI) getCookie() ([]*http.Cookie, error) {
-	parsedURL, err := url.Parse(u.sessionRootURL)
+	parsedURL, err := u.validateURL(u.sessionRootURL)
 	if err != nil {
-		return nil, fmt.Errorf("invalid URL: %w", err)
-	}
-
-	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return nil, errors.New("invalid URL scheme: must be http or https")
+		return nil, err
 	}
 
 	req, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
@@ -61,7 +58,7 @@ func (u *UnaryAPI) getCookie() ([]*http.Cookie, error) {
 	req.Header.Set("Authority", "finance.yahoo.com")
 	req.Header.Set("Accept", defaultAcceptValue)
 	req.Header.Set("Accept-Language", defaultAcceptLang)
-	req.Header.Set("User-Agent", defaultUserAgent)
+	req.Header.Set("User-Agent", c.DefaultUserAgent)
 
 	resp, err := u.client.Do(req)
 	if err != nil {
@@ -71,7 +68,7 @@ func (u *UnaryAPI) getCookie() ([]*http.Cookie, error) {
 
 	// Check for EU consent redirect
 	if isEUConsentRedirect(resp) {
-		return u.getCookieEU()
+		return u.getCookieEU(parsedURL)
 	}
 
 	cookies := resp.Cookies()
@@ -82,24 +79,15 @@ func (u *UnaryAPI) getCookie() ([]*http.Cookie, error) {
 	return cookies, nil
 }
 
-// getCookieEU handles the EU consent flow to get cookies
-func (u *UnaryAPI) getCookieEU() ([]*http.Cookie, error) {
+// getCookieEU handles the EU consent flow to get cookies. rootURL is the
+// already validated session root URL.
+func (u *UnaryAPI) getCookieEU(rootURL *url.URL) ([]*http.Cookie, error) {
 	var cookies []*http.Cookie
 
 	// Create a client with a redirect limit of 3 instead of the default of 1
 	client1 := u.createClientWithRedirectLimit(3)
 
-	parsedURL, err := url.Parse(u.sessionRootURL)
-	if err != nil {
-		return nil, fmt.Errorf("invalid URL: %w", err)
-	}
-
-	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return nil, errors.New("invalid URL scheme: must be http or https")
-	}
-
-	// First request to get redirected to consent page
-	req1, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
+	req1, err := http.NewRequest(http.MethodGet, rootURL.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request for root URL: %w", err)
 	}
@@ -107,7 +95,7 @@ func (u *UnaryAPI) getCookieEU() ([]*http.Cookie, error) {
 	req1.Header.Set("Authority", "finance.yahoo.com")
 	req1.Header.Set("Accept", defaultAcceptValue)
 	req1.Header.Set("Accept-Language", defaultAcceptLang)
-	req1.Header.Set("User-Agent", defaultUserAgent)
+	req1.Header.Set("User-Agent", c.DefaultUserAgent)
 
 	resp1, err := client1.Do(req1)
 	if err != nil {
@@ -147,13 +135,9 @@ func (u *UnaryAPI) getCookieEU() ([]*http.Cookie, error) {
 
 	formDataStr := formData.Encode()
 
-	parsedConsentURL, err := url.Parse(u.sessionConsentURL + fmt.Sprintf(sessionConsentPathPattern, sessionID))
+	parsedConsentURL, err := u.validateURL(u.sessionConsentURL + fmt.Sprintf(sessionConsentPathPattern, sessionID))
 	if err != nil {
-		return nil, fmt.Errorf("invalid URL: %w", err)
-	}
-
-	if parsedConsentURL.Scheme != "http" && parsedConsentURL.Scheme != "https" {
-		return nil, errors.New("invalid URL scheme: must be http or https")
+		return nil, err
 	}
 
 	req2, err := http.NewRequest(http.MethodPost, parsedConsentURL.String(), strings.NewReader(formDataStr))
@@ -167,7 +151,7 @@ func (u *UnaryAPI) getCookieEU() ([]*http.Cookie, error) {
 	req2.Header.Set("Accept", defaultAcceptValue)
 	req2.Header.Set("Accept-Language", defaultAcceptLang)
 	req2.Header.Set("Referer", u.sessionConsentURL+fmt.Sprintf(sessionConsentPathPattern, sessionID))
-	req2.Header.Set("User-Agent", defaultUserAgent)
+	req2.Header.Set("User-Agent", c.DefaultUserAgent)
 	req2.Header.Set("Content-Length", strconv.Itoa(len(formDataStr)))
 	req2.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req2.Header.Set("DNT", "1")
@@ -207,13 +191,9 @@ func (u *UnaryAPI) getCookieEU() ([]*http.Cookie, error) {
 
 // getCrumb retrieves the crumb value needed for authenticated requests
 func (u *UnaryAPI) getCrumb() (string, error) {
-	parsedURL, err := url.Parse(u.sessionCrumbURL + sessionCrumbPath)
+	parsedURL, err := u.validateURL(u.sessionCrumbURL + sessionCrumbPath)
 	if err != nil {
-		return "", fmt.Errorf("invalid URL: %w", err)
-	}
-
-	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return "", errors.New("invalid URL scheme: must be http or https")
+		return "", err
 	}
 
 	req, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
@@ -226,7 +206,7 @@ func (u *UnaryAPI) getCrumb() (string, error) {
 	req.Header.Set("Accept-Language", defaultAcceptLang)
 	req.Header.Set("Content-Type", "text/plain")
 	req.Header.Set("Origin", u.sessionRootURL)
-	req.Header.Set("User-Agent", defaultUserAgent)
+	req.Header.Set("User-Agent", c.DefaultUserAgent)
 
 	// Add cookies
 	for _, cookie := range u.cookies {
@@ -250,7 +230,9 @@ func (u *UnaryAPI) getCrumb() (string, error) {
 	return crumb, nil
 }
 
-// createClientWithRedirectLimit returns a new http.Client with the specified redirect limit
+// createClientWithRedirectLimit returns a new http.Client with the specified redirect limit.
+// Every redirect target is validated like a configured URL so a response cannot
+// send the request to an address that would have been rejected up front.
 func (a *UnaryAPI) createClientWithRedirectLimit(limit int) *http.Client {
 	return &http.Client{
 		Timeout: 10 * time.Second, // Prevent uncontrolled resource exhaustion
@@ -259,9 +241,18 @@ func (a *UnaryAPI) createClientWithRedirectLimit(limit int) *http.Client {
 				return http.ErrUseLastResponse
 			}
 
+			if _, err := c.ValidateHTTPURL(req.URL.String(), a.allowLoopback); err != nil {
+				return fmt.Errorf("blocked redirect: %w", err)
+			}
+
 			return nil
 		},
 	}
+}
+
+// validateURL parses raw and rejects URLs that are not safe to request from
+func (u *UnaryAPI) validateURL(raw string) (*url.URL, error) {
+	return c.ValidateHTTPURL(raw, u.allowLoopback)
 }
 
 // isEUConsentRedirect checks if the response is a redirect to the EU consent page

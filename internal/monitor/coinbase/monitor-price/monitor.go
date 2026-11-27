@@ -52,8 +52,11 @@ type input struct {
 
 // Config contains the required configuration for the Coinbase monitor
 type Config struct {
-	Ctx                      context.Context
-	UnaryURL                 string
+	Ctx      context.Context
+	UnaryURL string
+	// AllowLoopback lets the client reach a local test server or proxy. It must
+	// stay false for URLs taken from user configuration.
+	AllowLoopback            bool
 	ChanError                chan error
 	ChanUpdateAssetQuote     chan c.MessageUpdate[c.AssetQuote]
 	ChanRequestCurrencyRates chan []string
@@ -65,7 +68,12 @@ type Option func(*MonitorPriceCoinbase) error
 func NewMonitorPriceCoinbase(config Config, opts ...Option) (*MonitorPriceCoinbase, error) {
 	ctx, cancel := context.WithCancel(config.Ctx)
 
-	unaryAPI := unary.NewUnaryAPI(config.UnaryURL)
+	var unaryOptions []unary.Option
+	if config.AllowLoopback {
+		unaryOptions = append(unaryOptions, unary.WithAllowLoopback())
+	}
+
+	unaryAPI := unary.NewUnaryAPI(config.UnaryURL, unaryOptions...)
 
 	monitor := &MonitorPriceCoinbase{
 		assetQuotesCacheLookup:           make(map[string]*c.AssetQuote),

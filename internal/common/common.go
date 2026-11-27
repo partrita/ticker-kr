@@ -81,6 +81,9 @@ type Dependencies struct {
 	MonitorYahooSessionRootURL       string
 	MonitorYahooSessionCrumbURL      string
 	MonitorYahooSessionConsentURL    string
+	// AllowLoopback lets the monitors reach a local test server or proxy. It is
+	// set by tests only and must stay false for URLs taken from configuration.
+	AllowLoopback bool
 }
 
 type Monitor interface {

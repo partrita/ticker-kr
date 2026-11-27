@@ -26,7 +26,7 @@ var _ = Describe("Unary", func() {
 
 	Describe("NewUnaryAPI", func() {
 		It("should return a new UnaryAPI", func() {
-			api := unary.NewUnaryAPI(server.URL())
+			api := unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback())
 			Expect(api).NotTo(BeNil())
 		})
 	})
@@ -54,7 +54,7 @@ var _ = Describe("Unary", func() {
 				),
 			)
 
-			api := unary.NewUnaryAPI(server.URL())
+			api := unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback())
 			quotes, _, err := api.GetAssetQuotes([]string{"BTC-USD"})
 
 			Expect(err).NotTo(HaveOccurred())
@@ -102,7 +102,7 @@ var _ = Describe("Unary", func() {
 					),
 				)
 
-				api := unary.NewUnaryAPI(server.URL())
+				api := unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback())
 				quotes, _, err := api.GetAssetQuotes([]string{"BIT-31JAN25-CDE", "BTC-USD"})
 
 				Expect(err).NotTo(HaveOccurred())
@@ -144,7 +144,7 @@ var _ = Describe("Unary", func() {
 					),
 				)
 
-				api := unary.NewUnaryAPI(server.URL())
+				api := unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback())
 				quotes, _, err := api.GetAssetQuotes([]string{"BIT-31JAN25-CDE"})
 
 				Expect(err).NotTo(HaveOccurred())
@@ -179,7 +179,7 @@ var _ = Describe("Unary", func() {
 					),
 				)
 
-				api := unary.NewUnaryAPI(server.URL())
+				api := unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback())
 				quotes, _, err := api.GetAssetQuotes([]string{"BIT-31JAN25-CDE"})
 
 				Expect(err).NotTo(HaveOccurred())
@@ -231,7 +231,7 @@ var _ = Describe("Unary", func() {
 						),
 					)
 
-					api := unary.NewUnaryAPI(server.URL())
+					api := unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback())
 					quotes, _, err := api.GetAssetQuotes([]string{productId, "BTC-USD"})
 
 					Expect(err).NotTo(HaveOccurred())
@@ -245,6 +245,43 @@ var _ = Describe("Unary", func() {
 
 		})
 
+		Context("when the configured URL points inside the network", func() {
+			It("should refuse to send the request", func() {
+				for _, baseURL := range []string{
+					"http://localhost:8000",
+					"http://127.0.0.1:8000",
+					"http://10.1.2.3",
+					"http://169.254.169.254",
+					"http://[::1]",
+				} {
+					api := unary.NewUnaryAPI(baseURL)
+					quotes, _, err := api.GetAssetQuotes([]string{"BTC-USD"})
+
+					Expect(err).To(HaveOccurred(), baseURL)
+					Expect(err.Error()).To(ContainSubstring("not a public address"), baseURL)
+					Expect(quotes).To(BeEmpty(), baseURL)
+				}
+			})
+		})
+
+		Context("when a response redirects to an internal address", func() {
+			It("should refuse to follow the redirect", func() {
+				server.RouteToHandler("GET", "/api/v3/brokerage/market/products",
+					func(w http.ResponseWriter, r *http.Request) {
+						w.Header().Set("Location", "http://169.254.169.254/latest/meta-data/")
+						w.WriteHeader(http.StatusFound)
+					},
+				)
+
+				api := unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback())
+				quotes, _, err := api.GetAssetQuotes([]string{"BTC-USD"})
+
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("blocked redirect"))
+				Expect(quotes).To(BeEmpty())
+			})
+		})
+
 		Context("when the request fails", func() {
 			When("the request fails", func() {
 				It("should return an error", func() {
@@ -255,7 +292,7 @@ var _ = Describe("Unary", func() {
 						),
 					)
 
-					api := unary.NewUnaryAPI(server.URL())
+					api := unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback())
 					quotes, _, err := api.GetAssetQuotes([]string{"BTC-USD"})
 
 					Expect(err).To(HaveOccurred())
@@ -272,7 +309,7 @@ var _ = Describe("Unary", func() {
 						),
 					)
 
-					api := unary.NewUnaryAPI(server.URL())
+					api := unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback())
 					quotes, _, err := api.GetAssetQuotes([]string{"BTC-USD"})
 
 					Expect(err).To(HaveOccurred())
@@ -293,7 +330,7 @@ var _ = Describe("Unary", func() {
 
 		When("there are no symbols set", func() {
 			It("should return an empty list", func() {
-				api := unary.NewUnaryAPI(server.URL())
+				api := unary.NewUnaryAPI(server.URL(), unary.WithAllowLoopback())
 				quotes, _, err := api.GetAssetQuotes([]string{})
 
 				Expect(err).NotTo(HaveOccurred())
