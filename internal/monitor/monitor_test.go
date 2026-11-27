@@ -50,6 +50,7 @@ var _ = Describe("Monitor", func() {
 
 		// Create monitor with test server URLs
 		m, err := monitor.NewMonitor(monitor.ConfigMonitor{
+			AllowLoopback:   true,
 			RefreshInterval: 1,
 			TargetCurrency:  "USD",
 			ConfigMonitorPriceCoinbase: monitor.ConfigMonitorPriceCoinbase{
@@ -147,6 +148,7 @@ var _ = Describe("Monitor", func() {
 
 				// Create monitor with test server URLs
 				m, err := monitor.NewMonitor(monitor.ConfigMonitor{
+					AllowLoopback:   true,
 					RefreshInterval: 1,
 					ConfigMonitorsYahoo: monitor.ConfigMonitorsYahoo{
 						BaseURL:           serverYahoo.URL(),
@@ -253,6 +255,7 @@ var _ = Describe("Monitor", func() {
 					errorLogger := log.New(logWriter, "", 0)
 
 					m, err := monitor.NewMonitor(monitor.ConfigMonitor{
+						AllowLoopback:   true,
 						RefreshInterval: 1,
 						Logger:          errorLogger,
 						ConfigMonitorsYahoo: monitor.ConfigMonitorsYahoo{
@@ -277,15 +280,16 @@ var _ = Describe("Monitor", func() {
 					// Start the monitor
 					m.Start()
 
-					// Wait for error response
-					time.Sleep(2 * time.Second)
+					// Wait for error response. The monitor needs a few one second
+					// refresh cycles before the mock starts returning the bad redirect.
+					time.Sleep(4 * time.Second)
 
 					// Close the log writer
 					logWriter.Close()
 
 					// Read the log output
 					logOutput, _ := io.ReadAll(logReader)
-					Expect(string(logOutput)).To(ContainSubstring("invalid URL"))
+					Expect(string(logOutput)).To(ContainSubstring("failed to get quotes"))
 
 					// Clean up
 					m.Stop()
@@ -301,6 +305,7 @@ var _ = Describe("Monitor", func() {
 
 		It("should return nil when function functions are set", func() {
 			m, err := monitor.NewMonitor(monitor.ConfigMonitor{
+				AllowLoopback:   true,
 				RefreshInterval: 1,
 				TargetCurrency:  "USD",
 			})
@@ -316,6 +321,7 @@ var _ = Describe("Monitor", func() {
 		When("either asset or asset group quote update callback is not set", func() {
 			It("should return an error indicating the callbacks should be set", func() {
 				m, err := monitor.NewMonitor(monitor.ConfigMonitor{
+					AllowLoopback:   true,
 					RefreshInterval: 1,
 					TargetCurrency:  "USD",
 				})
@@ -378,6 +384,7 @@ var _ = Describe("Monitor", func() {
 				setupCoinbaseMockHandler(serverCoinbase)
 
 				m, err := monitor.NewMonitor(monitor.ConfigMonitor{
+					AllowLoopback:   true,
 					RefreshInterval: 1,
 					TargetCurrency:  "USD",
 					ConfigMonitorPriceCoinbase: monitor.ConfigMonitorPriceCoinbase{
@@ -437,6 +444,7 @@ var _ = Describe("Monitor", func() {
 				setupCoinbaseMockHandler(serverCoinbase)
 
 				m, err := monitor.NewMonitor(monitor.ConfigMonitor{
+					AllowLoopback:   true,
 					RefreshInterval: 1,
 					TargetCurrency:  "USD",
 					ConfigMonitorPriceCoinbase: monitor.ConfigMonitorPriceCoinbase{
