@@ -64,6 +64,16 @@ var _ = Describe("Streamer", func() {
 			})
 		})
 
+		When("the websocket url is malformed", func() {
+			It("should return an error containing the text 'invalid URL'", func() {
+				s.SetURL("://bad url")
+				err := s.Start()
+
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError(ContainSubstring("invalid URL")))
+			})
+		})
+
 		When("the websocket connection is not successful", func() {
 			It("should return an error containing the text 'invalid URL scheme: must be ws or wss'", func() {
 				inputServer = testWs.NewTestServer([]string{})
